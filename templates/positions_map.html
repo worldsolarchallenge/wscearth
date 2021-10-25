@@ -17,8 +17,13 @@
 
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
+          {% if rows %}
           center: { lat: {{rows[0]["latitude"]}}, lng: {{rows[0]["longitude"]}} },
           zoom: 8,
+          {% else %}
+          center: { lat: -25.0, lng: 133.0 },
+          zoom: 4,
+          {% endif %}
         });
 
         // Create an info window to share between markers.
