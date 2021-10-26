@@ -73,16 +73,15 @@ def positions():
         longs.append(row["longitude"])
 
     if len(rows) != 0:
-        return flask.render_template("positions_map.html", 
-            centre_lat=statistics.mean(lats), 
-            centre_long=statistics.mean(longs),
-            rows=rows)
+        return flask.render_template("positions_map.html",
+                                     centre_lat=statistics.mean(lats),
+                                     centre_long=statistics.mean(longs),
+                                     rows=rows)
     else:
-        return flask.render_template("positions_map.html", 
-            centre_lat=-25.0, 
-            centre_long=130.0,
-            rows=[])
-
+        return flask.render_template("positions_map.html",
+                                     centre_lat=-25.0,
+                                     centre_long=130.0,
+                                     rows=[])
 
 
 if __name__ == "__main__":
