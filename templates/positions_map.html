@@ -18,8 +18,8 @@
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
           {% if rows %}
-          center: { lat: {{rows[0]["latitude"]}}, lng: {{rows[0]["longitude"]}} },
-          zoom: 8,
+          center: { lat: {{centre_lat}}, lng: {{centre_long}} },
+          zoom: 3,
           {% else %}
           center: { lat: -25.0, lng: 133.0 },
           zoom: 4,

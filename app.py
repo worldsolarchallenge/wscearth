@@ -1,8 +1,8 @@
 import os
+import statistics
 
 import flask
 import flask_googlemaps
-
 from influxdb_client import InfluxDBClient
 
 app = flask.Flask(__name__)
@@ -63,8 +63,26 @@ def positions():
                     "latitude", "longitude", "consumption"])"""
 
     stream = query_api.query_stream(query)
+    rows = list(stream)
 
-    return flask.render_template("positions_map.html", rows=list(stream))
+    lats = []
+    longs = []
+
+    for row in rows:
+        lats.append(row["latitude"])
+        longs.append(row["longitude"])
+
+    if len(rows) != 0:
+        return flask.render_template("positions_map.html", 
+            centre_lat=statistics.mean(lats), 
+            centre_long=statistics.mean(longs),
+            rows=rows)
+    else:
+        return flask.render_template("positions_map.html", 
+            centre_lat=-25.0, 
+            centre_long=130.0,
+            rows=[])
+
 
 
 if __name__ == "__main__":
