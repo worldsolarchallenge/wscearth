@@ -1,11 +1,10 @@
 """WSC Earth is a flask app which renders a map of the current car positions."""
 
 import os
-import statistics
 
 import flask
 import flask_googlemaps
-from influxdb_client_3 import InfluxDBClient3, Point
+from influxdb_client_3 import InfluxDBClient3
 
 # Circular import recommended here: https://flask.palletsprojects.com/en/3.0.x/patterns/packages/
 from wscearth import app # pylint: disable=cyclic-import
@@ -62,10 +61,6 @@ def positions():
     #     lats.append(row["latitude"])
     #     longs.append(row["longitude"])
 
-    print (df.columns)
-    for index,row in df.iterrows():
-        print(row["last_longitude"])
-
     if len(df) == 0:
         return flask.render_template("positions_map.html",
                                     centre_lat=-25.0,
@@ -76,4 +71,3 @@ def positions():
                                     centre_lat=df["last_latitude"].mean(),
                                     centre_long=df["last_longitude"].mean(),
                                     df=df)
-
