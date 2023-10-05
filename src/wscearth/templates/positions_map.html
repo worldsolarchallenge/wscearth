@@ -34,7 +34,7 @@
         markers.push(new google.maps.Marker({
           position: { lat: {{ row["last_latitude"] }}, lng: {{ row["last_longitude"] }} },
           map: map,
-          title: '{{row["shortname"]}}'
+          title: '{{ row["shortname"] }}'
         }));
         {% endfor %}
 
