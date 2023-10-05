@@ -33,7 +33,7 @@
         {% for row in rows %}
         markers.push(new google.maps.Marker({
           position: { lat: {{ row["latitude"] }}, lng: {{ row["longitude"] }} },
-          map: map, 
+          map: map,
           title: '{{row["shortname"]}}'
         }));
         {% endfor %}
@@ -44,7 +44,7 @@
             infoWindow.close();
             infoWindow.setContent(marker.getTitle());
             infoWindow.open(marker.getMap(), marker);
-          } ) 
+          } )
         })
 
       }

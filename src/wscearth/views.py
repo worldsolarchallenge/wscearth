@@ -2,10 +2,11 @@ import os
 import statistics
 
 import flask
-import flask_googlemaps
+#import flask_googlemaps
 from influxdb_client import InfluxDBClient
 
-app = flask.Flask(__name__)
+# Circular import recommended here: https://flask.palletsprojects.com/en/3.0.x/patterns/packages/
+from wscearth import app
 
 INFLUX_URL = os.environ.get(
     "INFLUX_URL", "https://eastus-1.azure.cloud2.influxdata.com"
@@ -31,7 +32,7 @@ client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG,
 app.config["GOOGLEMAPS_KEY"] = os.environ.get("GOOGLEMAPS_KEY", None)
 print(f"Got GoogleMaps Key: {os.environ.get('GOOGLEMAPS_KEY', None)}")
 
-flask_googlemaps.GoogleMaps(app)
+#flask_googlemaps.GoogleMaps(app)
 
 # See https://github.com/flask-extensions/Flask-GoogleMaps
 # for details of the flask googlemaps extension.
