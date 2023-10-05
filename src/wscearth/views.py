@@ -1,3 +1,5 @@
+"""WSC Earth is a flask app which renders a map of the current car positions."""
+
 import os
 import statistics
 
@@ -6,7 +8,7 @@ import flask_googlemaps
 from influxdb_client import InfluxDBClient
 
 # Circular import recommended here: https://flask.palletsprojects.com/en/3.0.x/patterns/packages/
-from wscearth import app
+from wscearth import app # pylint: disable=cyclic-import
 
 INFLUX_URL = os.environ.get(
     "INFLUX_URL", "https://eastus-1.azure.cloud2.influxdata.com"
@@ -40,6 +42,7 @@ flask_googlemaps.GoogleMaps(app)
 
 @app.route("/")
 def positions():
+    """Render a positions map"""
     query_api = client.query_api()
 
     query = f"""
@@ -73,16 +76,16 @@ def positions():
         lats.append(row["latitude"])
         longs.append(row["longitude"])
 
-    if len(rows) != 0:
+    if len(rows) == 0:
         return flask.render_template("positions_map.html",
-                                     centre_lat=statistics.mean(lats),
-                                     centre_long=statistics.mean(longs),
-                                     rows=rows)
-    else:
-        return flask.render_template("positions_map.html",
-                                     centre_lat=-25.0,
-                                     centre_long=130.0,
-                                     rows=[])
+                                    centre_lat=-25.0,
+                                    centre_long=130.0,
+                                    rows=[])
+
+    return flask.render_template("positions_map.html",
+                                    centre_lat=statistics.mean(lats),
+                                    centre_long=statistics.mean(longs),
+                                    rows=rows)
 
 
 if __name__ == "__main__":
