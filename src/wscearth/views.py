@@ -5,18 +5,18 @@ import statistics
 
 import flask
 import flask_googlemaps
-from influxdb_client import InfluxDBClient
+from influxdb_client_3 import InfluxDBClient3, Point
 
 # Circular import recommended here: https://flask.palletsprojects.com/en/3.0.x/patterns/packages/
 from wscearth import app # pylint: disable=cyclic-import
 
 INFLUX_URL = os.environ.get(
-    "INFLUX_URL", "https://eastus-1.azure.cloud2.influxdata.com"
+    "INFLUX_URL", "https://us-east-1-1.aws.cloud2.influxdata.com"
 )
-INFLUX_ORG = os.environ.get("INFLUX_ORG", "BWSC")
+INFLUX_ORG = os.environ.get("INFLUX_ORG", "Bridgestone World Solar Challenge")
 INFLUX_TOKEN = os.environ.get("INFLUX_TOKEN", None)
 
-INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "sample")
+INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "test")
 
 QUERY_TIME = os.environ.get("QUERY_TIME", "-2d")
 
@@ -25,8 +25,12 @@ if not INFLUX_TOKEN:
     raise ValueError("No InfluxDB token set using INFLUX_TOKEN "
                      "environment variable")
 
-client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG,
-                        debug=True)
+client = InfluxDBClient3(host=INFLUX_URL,
+                         token=INFLUX_TOKEN,
+                         org=INFLUX_ORG,
+                         database=INFLUX_BUCKET)
+
+
 
 
 # SEt up Google Maps
@@ -43,50 +47,33 @@ flask_googlemaps.GoogleMaps(app)
 @app.route("/")
 def positions():
     """Render a positions map"""
-    query_api = client.query_api()
+#    query = "select * from telemetry GROUP BY car"
+    query = 'SELECT LAST(*) FROM "telemetry" GROUP BY car'
+    table = client.query(query=query, database=INFLUX_BUCKET, language="influxql")
 
-    query = f"""
-        from(bucket: "{INFLUX_BUCKET}")
-            |> range(start: {QUERY_TIME})
-            |> filter(fn: (r) => r._measurement == "telemetry"
-                                 and (r._field == "latitude"
-                                 or r._field == "longitude"
-                                 or r._field == "distance"
-                                 or r._field == "solarEnergy"
-                                 or r._field == "batteryEnergy"))
-            |> last()
-            |> keep(columns: ["shortname", "_field", "_value"])
-            |> pivot(rowKey: ["shortname"],
-                              columnKey: ["_field"],
-                              valueColumn: "_value")
-            |> map(fn: (r) => ({{r with consumption:
-                              (r.solarEnergy +
-                                r.batteryEnergy)/r.distance}}))
-            |> group()
-            |> keep(columns: ["shortname", "distance",
-                    "latitude", "longitude", "consumption"])"""
+    # Convert to dataframe
+    df = table.to_pandas().sort_values(by="time")
+    #print(df.to_markdown())
 
-    stream = query_api.query_stream(query)
-    rows = list(stream)
+    # lats = []
+    # longs = []
 
-    lats = []
-    longs = []
+    # for row in rows:
+    #     lats.append(row["latitude"])
+    #     longs.append(row["longitude"])
 
-    for row in rows:
-        lats.append(row["latitude"])
-        longs.append(row["longitude"])
+    print (df.columns)
+    for index,row in df.iterrows():
+        print(row["last_longitude"])
 
-    if len(rows) == 0:
+    if len(df) == 0:
         return flask.render_template("positions_map.html",
                                     centre_lat=-25.0,
                                     centre_long=130.0,
-                                    rows=[])
+                                    df=[])
 
     return flask.render_template("positions_map.html",
-                                    centre_lat=statistics.mean(lats),
-                                    centre_long=statistics.mean(longs),
-                                    rows=rows)
+                                    centre_lat=df["last_latitude"].mean(),
+                                    centre_long=df["last_longitude"].mean(),
+                                    df=df)
 
-
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")

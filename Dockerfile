@@ -1,7 +1,7 @@
 FROM python:3.11.6-slim
 
-ENV GOOGLEMAPS_KEY
-ENV INFLUX_TOKEN
+# ENV GOOGLEMAPS_KEY
+# ENV INFLUX_TOKEN
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -13,5 +13,7 @@ COPY . /app
 
 RUN pip install --no-cache-dir /app
 
+EXPOSE 8080
+
 ENTRYPOINT ["python"]
-CMD ["/usr/local/bin/flask", "--app", "wscearth", "run"]
+CMD ["/usr/local/bin/flask", "--app", "wscearth", "run", "--port", "8080", "--debug"]

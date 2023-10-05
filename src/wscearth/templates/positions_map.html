@@ -17,12 +17,12 @@
 
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
-          {% if rows %}
-          center: { lat: {{centre_lat}}, lng: {{centre_long}} },
-          zoom: 3,
-          {% else %}
+          {% if df.empty %}
           center: { lat: -25.0, lng: 133.0 },
           zoom: 4,
+          {% else %}
+          center: { lat: {{centre_lat}}, lng: {{centre_long}} },
+          zoom: 3,
           {% endif %}
         });
 
@@ -30,9 +30,9 @@
         const infoWindow = new google.maps.InfoWindow();
 
         const markers = [];
-        {% for row in rows %}
+        {% for index,row in df.iterrows() %}
         markers.push(new google.maps.Marker({
-          position: { lat: {{ row["latitude"] }}, lng: {{ row["longitude"] }} },
+          position: { lat: {{ row["last_latitude"] }}, lng: {{ row["last_longitude"] }} },
           map: map,
           title: '{{row["shortname"]}}'
         }));
