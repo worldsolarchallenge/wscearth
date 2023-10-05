@@ -13,7 +13,7 @@ COPY . /app
 
 RUN pip install --no-cache-dir /app
 
-EXPOSE 8080
+EXPOSE 5000
 
 ENTRYPOINT ["python"]
 CMD ["-m", "wscearth"]
