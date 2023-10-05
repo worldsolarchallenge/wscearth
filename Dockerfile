@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir /app
 EXPOSE 8080
 
 ENTRYPOINT ["python"]
-CMD ["/usr/local/bin/flask", "--app", "wscearth", "run", "--port", "8080", "--debug"]
+CMD ["-m", "wscearth"]

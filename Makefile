@@ -4,7 +4,7 @@ DOCKER_REPO=dcasnowdon
 
 INFLUX_URL ?= "https://eastus-1.azure.cloud2.influxdata.com"
 INFLUX_ORG ?= "Bridgestone World Solar Challenge"
-INFLUX_BUCKET ?= telemetry
+INFLUX_BUCKET ?= test
 QUERY_TIME ?= "-2d"1
 
 GOOGLEMAPS_KEY ?=
