@@ -22,7 +22,7 @@ build:
 	docker build -t $(DOCKER_NAME):$(DOCKER_TAG) .
 
 run: build
-	docker run -p 8080:8080 $(foreach e,$(ENV_VARS),-e $(e)) $(DOCKER_NAME)
+	docker run -p 5000:5000 $(foreach e,$(ENV_VARS),-e $(e)) $(DOCKER_NAME)
 
 publish: build
 	docker image tag $(DOCKER_NAME):$(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_NAME):$(DOCKER_TAG)
