@@ -1,11 +1,17 @@
-FROM python:3.9.7-slim
+FROM python:3.11.6-slim
 
-COPY requirements.txt /app/requirements.txt
+ENV GOOGLEMAPS_KEY
+ENV INFLUX_TOKEN
+
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
-
-RUN pip install -r requirements.txt
 
 COPY . /app
 
+RUN pip install --no-cache-dir /app
+
 ENTRYPOINT ["python"]
-CMD ["app.py"]
+CMD ["/usr/local/bin/flask", "--app", "wscearth", "run"]
