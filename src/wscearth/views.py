@@ -47,7 +47,7 @@ flask_googlemaps.GoogleMaps(app)
 def positions():
     """Render a positions map"""
 #    query = "select * from telemetry GROUP BY car"
-    query = 'SELECT LAST(*) FROM "telemetry" GROUP BY car'
+    query = 'SELECT LAST(*) FROM "telemetry" GROUP BY shortname'
     table = client.query(query=query, database=INFLUX_BUCKET, language="influxql")
 
     # Convert to dataframe
@@ -60,6 +60,9 @@ def positions():
     # for row in rows:
     #     lats.append(row["latitude"])
     #     longs.append(row["longitude"])
+
+    #for _,row in df.iterrows():
+    #    print(row)
 
     if len(df) == 0:
         return flask.render_template("positions_map.html",
