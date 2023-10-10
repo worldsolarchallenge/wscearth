@@ -32,7 +32,7 @@
         const markers = [];
         {% for index,row in df.iterrows() %}
         markers.push(new google.maps.Marker({
-          position: { lat: {{ row["last_latitude"] }}, lng: {{ row["last_longitude"] }} },
+          position: { lat: {{ row["latitude"] }}, lng: {{ row["longitude"] }} },
           map: map,
           title: '{{ row["shortname"] }}'
         }));
