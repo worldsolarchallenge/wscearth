@@ -2,32 +2,43 @@ window.wsc = (function() {
   let map;
   const markers = {};
 
-  async function getPositions() {
-    const res = await fetch('api/positions');
+  // API utilities.
+  const api = (function() {
+    const base = new URL(document.currentScript.src);
 
-    if (!res.ok) {
-      const message = `${res.status}: ` + await res.text();
-      throw new Error(message);
+    // Generic fetch.
+    async function get(url) {
+      const res = await fetch(`${base.protocol}//${base.host}/${url}`, {
+        mode: 'cors',
+      });
+
+      if (!res.ok) {
+        const message = `${res.status}: ` + await res.text();
+        throw new Error(message);
+      }
+
+      const json = await res.json();
+      return json;
     }
 
-    const json = await res.json();
-    return json;
-  }
-
-  async function getPaths(shortname) {
-    const res = await fetch('api/path/' + shortname);
-
-    if (!res.ok) {
-      const message = `${res.status}: ` + await res.text();
-      throw new Error(message);
+    // Fetch last positions for all cars.
+    async function getPositions() {
+      return await get('api/positions');
     }
 
-    const json = await res.json();
-    return json;
-  }
+    // Fetch historical positions (path) for a car.
+    async function getPaths(shortname) {
+      return await get('api/path/' + shortname);
+    }
 
+    return {
+      getPositions,
+      getPaths,
+    }
+  })();
+
+  // Create/update markers on the map, deduplicated by shortname.
   function updateMarkers(items) {
-
     for (let item of items) {
 
       if (!item.shortname) {
@@ -66,8 +77,9 @@ window.wsc = (function() {
     }
   }
 
+  // Draw a path for a car.
   async function drawPath(shortname) {
-    const path = await getPaths(shortname);
+    const path = await api.getPaths(shortname);
 
     const poly = new google.maps.Polyline({
       path: path.map(item => ({ lat: item.latitude, lng: item.longitude })),
@@ -93,7 +105,7 @@ window.wsc = (function() {
     // Create an info window to share between markers.
     const infoWindow = new google.maps.InfoWindow();
 
-    const data = await getPositions();
+    const data = await api.getPositions();
 
     // Initial map position based on the mean of all positions.
     map.setCenter(data.center);
@@ -110,7 +122,7 @@ window.wsc = (function() {
 
     // Loop it.
     setInterval(async () => {
-      const data = await getPositions();
+      const data = await api.getPositions();
       updateMarkers(data.items);
     }, 5000);
   }
@@ -119,7 +131,6 @@ window.wsc = (function() {
 
   return {
     markers,
-    getPositions,
     updateMarkers,
     drawPath,
     initMap,

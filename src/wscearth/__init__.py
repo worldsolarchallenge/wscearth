@@ -2,6 +2,7 @@
 
 from flask import Flask
 from flask_caching import Cache
+from flask_cors import CORS
 
 config = {
     "DEBUG": True,          # some Flask specific configs
@@ -11,6 +12,7 @@ config = {
 app = Flask(__name__)
 app.config.from_mapping(config)
 cache = Cache(app)
+cors = CORS(app)
 
 import wscearth.views # pylint: disable=wrong-import-position
 
