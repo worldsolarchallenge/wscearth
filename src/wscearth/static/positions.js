@@ -14,6 +14,18 @@ window.wsc = (function() {
     return json;
   }
 
+  async function getPaths(shortname) {
+    const res = await fetch('api/path/' + shortname);
+
+    if (!res.ok) {
+      const message = `${res.status}: ` + await res.text();
+      throw new Error(message);
+    }
+
+    const json = await res.json();
+    return json;
+  }
+
   function updateMarkers(items) {
 
     for (let item of items) {
@@ -54,6 +66,20 @@ window.wsc = (function() {
     }
   }
 
+  async function drawPath(shortname) {
+    const path = await getPaths(shortname);
+
+    const poly = new google.maps.Polyline({
+      path: path.map(item => ({ lat: item.latitude, lng: item.longitude })),
+      geodesic: true,
+      strokeColor: '#FF0000',
+      strokeOpacity: 1.0,
+      strokeWeight: 2,
+    });
+
+    poly.setMap(map);
+  }
+
   async function initMap() {
     if (map) {
       throw new Error('already initialized');
@@ -92,10 +118,10 @@ window.wsc = (function() {
   window.__wscinitMap = initMap;
 
   return {
-    map,
     markers,
     getPositions,
     updateMarkers,
+    drawPath,
     initMap,
   }
 })();
