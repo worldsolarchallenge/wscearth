@@ -91,8 +91,8 @@ GROUP BY shortname"""
         }
     else:
         center = {
-            "lat": df["last_latitude"].mean(),
-            "lng": df["last_longitude"].mean(),
+            "lat": df["latitude"].mean(),
+            "lng": df["longitude"].mean(),
         }
 
     # We're in 2023 and this the best Python can do?
