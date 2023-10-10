@@ -13,41 +13,102 @@
     </style>
 
     <script>
+    window.wsc = (function() {
       let map;
+      const markers = {};
 
-      function initMap() {
+      async function getPositions() {
+        const res = await fetch('api/positions');
+
+        if (!res.ok) {
+          const message = `${res.status}: ` + await res.text();
+          throw new Error(message);
+        }
+
+        const json = await res.json();
+        return json;
+      }
+
+      function updateMarkers(items) {
+
+        for (let item of items) {
+
+          if (!item.shortname) {
+            console.warn('missing shortname:', item);
+            continue;
+          }
+
+          if (
+            typeof item.latitude !== 'number'
+            || typeof item.longitude !== 'number'
+          ) {
+            console.warn('invalid position:', item);
+            continue
+          }
+
+          let marker = markers[item.shortname];
+
+          // Update existing markers.
+          if (marker) {
+            marker.setPosition({
+              lat: item.latitude,
+              lng: item.longitude,
+            });
+            continue;
+          }
+
+          // It's a new marker.
+          markers[item.shortname] = new google.maps.Marker({
+            map: map,
+            title: item.shortname,
+            position: {
+              lat: item.latitude,
+              lng: item.longitude,
+            }
+          });
+        }
+      }
+
+      async function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
-          {% if df.empty %}
           center: { lat: -25.0, lng: 133.0 },
           zoom: 4,
-          {% else %}
-          center: { lat: {{centre_lat}}, lng: {{centre_long}} },
-          zoom: 3,
-          {% endif %}
         });
 
         // Create an info window to share between markers.
         const infoWindow = new google.maps.InfoWindow();
 
-        const markers = [];
-        {% for index,row in df.iterrows() %}
-        markers.push(new google.maps.Marker({
-          position: { lat: {{ row["latitude"] }}, lng: {{ row["longitude"] }} },
-          map: map,
-          title: '{{ row["shortname"] }}'
-        }));
-        {% endfor %}
+        const data = await getPositions();
 
-        markers.map((marker) => {
-          // Add a click listener for each marker, and set up the info window.
+        // Initial map position based on the mean of all positions.
+        map.setCenter(data.center);
+        updateMarkers(data.items);
+
+        // Add a click listener for each marker, and set up the info window.
+        for (let marker of Object.values(markers)) {
           marker.addListener("click", () => {
             infoWindow.close();
             infoWindow.setContent(marker.getTitle());
             infoWindow.open(marker.getMap(), marker);
-          } )
-        })
+          })
+        }
 
+        // Loop it.
+        setInterval(async () => {
+          const data = await getPositions();
+          updateMarkers(data.items);
+        }, 5000);
       }
+
+      window.initMap = initMap;
+
+      return {
+        map,
+        markers,
+        getPositions,
+        updateMarkers,
+      }
+    })();
     </script>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->

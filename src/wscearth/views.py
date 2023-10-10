@@ -6,6 +6,7 @@ import flask
 import flask_cachecontrol
 import flask_googlemaps
 from influxdb_client_3 import InfluxDBClient3
+import simplejson as json
 
 # Circular import recommended here: https://flask.palletsprojects.com/en/3.0.x/patterns/packages/
 from wscearth import app,cache # pylint: disable=cyclic-import
@@ -47,8 +48,16 @@ flask_googlemaps.GoogleMaps(app)
 @app.route("/")
 @cache.cached(timeout=30)
 @flask_cachecontrol.cache_for(seconds=30)
+def index():
+    """Render a Google map"""
+    return flask.render_template("positions_map.html")
+
+
+@app.route("/api/positions")
+@cache.cached(timeout=30)
+@flask_cachecontrol.cache_for(seconds=30)
 def positions():
-    """Render a positions map"""
+    """Render a positions JSON"""
 #    query = "select * from telemetry GROUP BY car"
     query = """\
 SELECT LAST(latitude),latitude,longitude,*
@@ -75,12 +84,22 @@ GROUP BY shortname"""
     #    print(row)
 
     if len(df) == 0:
-        return flask.render_template("positions_map.html",
-                                    centre_lat=-25.0,
-                                    centre_long=130.0,
-                                    df=[])
+        df = []
+        center = {
+            "lat": -25.0,
+            "lng": 130.0,
+        }
+    else:
+        center = {
+            "lat": df["last_latitude"].mean(),
+            "lng": df["last_longitude"].mean(),
+        }
 
-    return flask.render_template("positions_map.html",
-                                    centre_lat=df["latitude"].mean(),
-                                    centre_long=df["longitude"].mean(),
-                                    df=df)
+    # We're in 2023 and this the best Python can do?
+    items = json.loads(df.to_json(orient="records"))
+
+    return json.dumps({
+        "center": center,
+        "items": items,
+    }, ignore_nan=True)
+
