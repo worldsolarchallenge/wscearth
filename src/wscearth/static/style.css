@@ -1,0 +1,48 @@
+#map {
+    height: 100%;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Map popup boxes */
+.map-popup {
+	padding: 15px;
+}
+
+.map-popup img {
+	margin: 0 10px 0 0;
+}
+
+.map-popup a {
+	color: #222;
+}
+
+.map-popup .name {
+	margin-bottom: 20px;
+	text-align: center;
+	background: #eee;
+	padding: 10px;
+}
+
+.map-popup b {
+	display: inline-block;
+	width: 200px;
+}
+
+.map-popup span {
+	display: inline-block;
+	width: 200px;
+}
+
+.map-popup span > i {
+	font-style: normal;
+	border-bottom: 1px #666 dotted;
+}
+
+.map-popup .info {
+	font-size: 11px;
+}

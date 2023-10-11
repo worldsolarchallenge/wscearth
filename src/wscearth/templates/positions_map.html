@@ -1,54 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <style>
-      #map {
-        height: 100%;
-      }
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-    </style>
-
-    <script>
-      let map;
-
-      function initMap() {
-        map = new google.maps.Map(document.getElementById("map"), {
-          {% if df.empty %}
-          center: { lat: -25.0, lng: 133.0 },
-          zoom: 4,
-          {% else %}
-          center: { lat: {{centre_lat}}, lng: {{centre_long}} },
-          zoom: 3,
-          {% endif %}
-        });
-
-        // Create an info window to share between markers.
-        const infoWindow = new google.maps.InfoWindow();
-
-        const markers = [];
-        {% for index,row in df.iterrows() %}
-        markers.push(new google.maps.Marker({
-          position: { lat: {{ row["latitude"] }}, lng: {{ row["longitude"] }} },
-          map: map,
-          title: '{{ row["shortname"] }}'
-        }));
-        {% endfor %}
-
-        markers.map((marker) => {
-          // Add a click listener for each marker, and set up the info window.
-          marker.addListener("click", () => {
-            infoWindow.close();
-            infoWindow.setContent(marker.getTitle());
-            infoWindow.open(marker.getMap(), marker);
-          } )
-        })
-
-      }
-    </script>
+    <link rel="stylesheet" href="/static/style.css">
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-MXGQHB1S3T"></script>
@@ -64,9 +17,11 @@
   <body>
     <div id="map"></div>
 
+    <script src="/static/positions.js"></script>
+
     <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
     <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4cxmf6zr3SMovEYgZZe9eoEQCglqz3L8&callback=initMap&v=weekly"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4cxmf6zr3SMovEYgZZe9eoEQCglqz3L8&callback=__wscinitMap&v=weekly"
       async
     ></script>
   </body>
