@@ -8,7 +8,7 @@ window.wsc = (function() {
   // API utilities.
   const api = (function() {
     const telemetry = new URL(document.currentScript.src);
-    const sprout = new URL('http://sola.gwilyn.bunnysites.com');
+    const sprout = new URL('https://worldsolarchallenge.org');
 
     // Generic fetch.
     async function get(base, uri, params = {}) {
