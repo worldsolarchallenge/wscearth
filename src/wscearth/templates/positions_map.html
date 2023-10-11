@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('index') }}static/style.css">
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-MXGQHB1S3T"></script>
@@ -17,7 +17,7 @@
   <body>
     <div id="map"></div>
 
-    <script src="/static/positions.js"></script>
+    <script src="{{ url_for('index') }}static/positions.js"></script>
 
     <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
     <script
