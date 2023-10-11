@@ -51,6 +51,28 @@ window.wsc = (function() {
     }
   })();
 
+  const loop = (function() {
+    let timer = 0;
+
+    function start(timeout = 5000) {
+      clearInterval(timer);
+
+      timer = setInterval(async () => {
+        data = await api.getPositions();
+        updateMarkers();
+      }, timeout);
+    }
+
+    function stop() {
+      clearInterval(timer);
+    }
+
+    return {
+      start,
+      stop,
+    }
+  })();
+
   // Create/update markers on the map, deduplicated by shortname.
   function updateMarkers() {
     for (let item of data.items) {
@@ -170,15 +192,14 @@ window.wsc = (function() {
     updateMarkers();
 
     // Loop it.
-    setInterval(async () => {
-      data = await api.getPositions();
-      updateMarkers(data.items);
-    }, 5000);
+    loop.start();
   }
 
   window.__wscinitMap = initMap;
 
   return {
+    api,
+    loop,
     markers,
     updateMarkers,
     drawPath,
