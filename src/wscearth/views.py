@@ -116,4 +116,3 @@ GROUP BY shortname"""
         "center": center,
         "items": items,
     }, ignore_nan=True)
-
