@@ -7,14 +7,14 @@ window.wsc = (function() {
 
   // API utilities.
   const api = (function() {
-    const telemetry = new URL(document.currentScript.src);
+    const telemetry = new URL(document.currentScript.baseURI);
     const sprout = new URL('https://worldsolarchallenge.org');
 
     // Generic fetch.
     async function get(base, uri, params = {}) {
       const query = new URLSearchParams(params);
       const search = query.toString();
-      const url = `${base.protocol}//${base.host}/${uri}` + (search ? `?${search}` : '');
+      const url = `${base.href}/${uri}` + (search ? `?${search}` : '');
 
       const res = await fetch(url, {
         mode: 'cors',
