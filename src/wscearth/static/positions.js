@@ -1,6 +1,7 @@
 window.wsc = (function() {
   let map;
   let infoWindow;
+  let data;
 
   const markers = {};
 
@@ -51,8 +52,8 @@ window.wsc = (function() {
   })();
 
   // Create/update markers on the map, deduplicated by shortname.
-  function updateMarkers(items) {
-    for (let item of items) {
+  function updateMarkers() {
+    for (let item of data.items) {
 
       if (!item.shortname) {
         console.warn('missing shortname:', item);
@@ -89,7 +90,7 @@ window.wsc = (function() {
       });
 
       // Attach events.
-      marker.addListener("click", () => openMarkerPopup(item, marker));
+      marker.addListener("click", () => openMarkerPopup(item.shortname));
 
       markers[item.shortname] = marker;
     }
@@ -110,28 +111,35 @@ window.wsc = (function() {
     poly.setMap(map);
   }
 
-  async function openMarkerPopup(data, marker) {
-    const team = await api.getSproutData(data.event, data.team);
+  async function openMarkerPopup(shortname) {
+    const marker = markers[shortname];
+    const item = data.items.find(item => item.shortname === shortname);
 
-    const gps_when = new Date(data.time);
+    if (!marker || !item) {
+      throw new Error('invalid shortname');
+    }
+
+    const team = await api.getSproutData(item.event, item.team);
+
+    const gps_when = new Date(item.time);
     const gps_age = (Date.now() - gps_when) / 1000;
 
     const html = [
       '<div class="map-popup">',
       `<p class="name"><img src="${team.flag_url}">`,
       `<a href="${team.site_url}" target="_blank">${team.name}</a></p>`,
-      `<p><b>Latitude:</b><span>${data.latitude}</span></p>`,
-      `<p><b>Longitude:</b><span>${data.longitude}</span></p>`,
+      `<p><b>Latitude:</b><span>${item.latitude}</span></p>`,
+      `<p><b>Longitude:</b><span>${item.longitude}</span></p>`,
       `<p><b>GPS last updated:</b><span>${gps_when.toLocaleString()} &nbsp; <i title="UTC + 9:30">Darwin time</i></span></p>`,
       `<p><b>GPS data age:</b><span>${gps_age} seconds</span></p>`,
     ];
 
-    if (data.dist_adelaide > 1) {
-      html.push(`<p><b>Geodesic dist from Darwin:</b><span>${data.dist_darwin} km</span></p>`);
-      html.push(`<p><b>Geodesic dist from Adelaide:</b><span>${data.dist_adelaide} km</span></p>`);
+    if (item.dist_adelaide > 1) {
+      html.push(`<p><b>Geodesic dist from Darwin:</b><span>${item.dist_darwin} km</span></p>`);
+      html.push(`<p><b>Geodesic dist from Adelaide:</b><span>${item.dist_adelaide} km</span></p>`);
     }
 
-    if (data.trailered) {
+    if (item.trailered) {
       html.push('<p><br>This car has been trailered</p>');
     }
 
@@ -155,15 +163,15 @@ window.wsc = (function() {
     // Create an info window to share between markers.
     infoWindow = new google.maps.InfoWindow();
 
-    const data = await api.getPositions();
+    data = await api.getPositions();
 
     // Initial map position based on the mean of all positions.
     map.setCenter(data.center);
-    updateMarkers(data.items);
+    updateMarkers();
 
     // Loop it.
     setInterval(async () => {
-      const data = await api.getPositions();
+      data = await api.getPositions();
       updateMarkers(data.items);
     }, 5000);
   }
@@ -174,6 +182,7 @@ window.wsc = (function() {
     markers,
     updateMarkers,
     drawPath,
+    openMarkerPopup,
     initMap,
   }
 })();
