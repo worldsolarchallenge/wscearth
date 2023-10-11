@@ -1,14 +1,21 @@
 window.wsc = (function() {
   let map;
+  let infoWindow;
+
   const markers = {};
 
   // API utilities.
   const api = (function() {
-    const base = new URL(document.currentScript.src);
+    const telemetry = new URL(document.currentScript.src);
+    const sprout = new URL('http://sola.gwilyn.bunnysites.com');
 
     // Generic fetch.
-    async function get(url) {
-      const res = await fetch(`${base.protocol}//${base.host}/${url}`, {
+    async function get(base, uri, params = {}) {
+      const query = new URLSearchParams(params);
+      const search = query.toString();
+      const url = `${base.protocol}//${base.host}/${uri}` + (search ? `?${search}` : '');
+
+      const res = await fetch(url, {
         mode: 'cors',
       });
 
@@ -23,17 +30,23 @@ window.wsc = (function() {
 
     // Fetch last positions for all cars.
     async function getPositions() {
-      return await get('api/positions');
+      return await get(telemetry, 'api/positions');
     }
 
     // Fetch historical positions (path) for a car.
     async function getPaths(shortname) {
-      return await get('api/path/' + shortname);
+      return await get(telemetry, 'api/path/' + shortname);
+    }
+
+    // Fetch Sprout content managed data.
+    async function getSproutData(event, team) {
+      return await get(sprout, 'api/team', { event, team });
     }
 
     return {
       getPositions,
       getPaths,
+      getSproutData,
     }
   })();
 
@@ -66,7 +79,7 @@ window.wsc = (function() {
       }
 
       // It's a new marker.
-      markers[item.shortname] = new google.maps.Marker({
+      marker = new google.maps.Marker({
         map: map,
         title: item.shortname,
         position: {
@@ -74,6 +87,11 @@ window.wsc = (function() {
           lng: item.longitude,
         }
       });
+
+      // Attach events.
+      marker.addListener("click", () => openMarkerPopup(item, marker));
+
+      markers[item.shortname] = marker;
     }
   }
 
@@ -92,6 +110,38 @@ window.wsc = (function() {
     poly.setMap(map);
   }
 
+  async function openMarkerPopup(data, marker) {
+    const team = await api.getSproutData(data.event, data.team);
+
+    const gps_when = new Date(data.time);
+    const gps_age = (Date.now() - gps_when) / 1000;
+
+    const html = [
+      '<div class="map-popup">',
+      `<p class="name"><img src="${team.flag_url}">`,
+      `<a href="${team.site_url}" target="_blank">${team.name}</a></p>`,
+      `<p><b>Latitude:</b><span>${data.latitude}</span></p>`,
+      `<p><b>Longitude:</b><span>${data.longitude}</span></p>`,
+      `<p><b>GPS last updated:</b><span>${gps_when.toLocaleString()} &nbsp; <i title="UTC + 9:30">Darwin time</i></span></p>`,
+      `<p><b>GPS data age:</b><span>${gps_age} seconds</span></p>`,
+    ];
+
+    if (data.dist_adelaide > 1) {
+      html.push(`<p><b>Geodesic dist from Darwin:</b><span>${data.dist_darwin} km</span></p>`);
+      html.push(`<p><b>Geodesic dist from Adelaide:</b><span>${data.dist_adelaide} km</span></p>`);
+    }
+
+    if (data.trailered) {
+      html.push('<p><br>This car has been trailered</p>');
+    }
+
+    html.push('</div>');
+
+    infoWindow.close();
+    infoWindow.setContent(html.join(''));
+    infoWindow.open(marker.getMap(), marker);
+  }
+
   async function initMap() {
     if (map) {
       throw new Error('already initialized');
@@ -103,22 +153,13 @@ window.wsc = (function() {
     });
 
     // Create an info window to share between markers.
-    const infoWindow = new google.maps.InfoWindow();
+    infoWindow = new google.maps.InfoWindow();
 
     const data = await api.getPositions();
 
     // Initial map position based on the mean of all positions.
     map.setCenter(data.center);
     updateMarkers(data.items);
-
-    // Add a click listener for each marker, and set up the info window.
-    for (let marker of Object.values(markers)) {
-      marker.addListener("click", () => {
-        infoWindow.close();
-        infoWindow.setContent(marker.getTitle());
-        infoWindow.open(marker.getMap(), marker);
-      })
-    }
 
     // Loop it.
     setInterval(async () => {
