@@ -35,7 +35,7 @@ def api_path(teamnum):
     """Render JSON path positions for car"""
 
     teamnum = int(teamnum)
-    query = f'SELECT * FROM "telemetry" WHERE shortname = '{teamnum}' and time >= -30d'
+    query = f'SELECT * FROM "telemetry" WHERE shortname = {teamnum} and time >= -30d'
     table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
 
     df = table.select(['time', 'latitude', 'longitude', 'altitude', 'solarEnergy']) \
