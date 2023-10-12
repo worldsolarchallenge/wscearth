@@ -59,11 +59,14 @@ def positions_script():
     return flask.render_template("positions.js.j2")
 
 
-@app.route("/api/path/<shortname>")
-def api_path(shortname):
+@app.route("/api/path/<teamnum>")
+@cache.cached(timeout=30)
+@flask_cachecontrol.cache_for(seconds=30)
+def api_path(teamnum):
     """Render JSON path positions for car"""
 
-    query = f'SELECT * FROM "telemetry" WHERE shortname = \'{shortname}\' and time >= -30d'
+    teamnum = int(teamnum)
+    query = f'SELECT * FROM "telemetry" WHERE teamnum = {teamnum} and time >= -30d'
     table = client.query(query=query, database=INFLUX_BUCKET, language="influxql")
 
     df = table.select(['time', 'latitude', 'longitude', 'altitude', 'solarEnergy']) \
@@ -103,20 +106,18 @@ GROUP BY shortname"""
     #for _,row in df.iterrows():
     #    print(row)
 
-    if len(df) == 0:
-        df = []
-        center = {
-            "lat": -25.0,
-            "lng": 130.0,
-        }
-    else:
+    items = []
+    center = {
+        "lat": -25.0,
+        "lng": 130.0,
+    }
+
+    if len(df) > 0:
+        items = json.loads(df.to_json(orient="records"))
         center = {
             "lat": df["latitude"].mean(),
             "lng": df["longitude"].mean(),
         }
-
-    # We're in 2023 and this the best Python can do?
-    items = json.loads(df.to_json(orient="records"))
 
     return json.dumps({
         "center": center,
