@@ -53,13 +53,14 @@ def index():
     return flask.render_template("positions_map.html")
 
 
-@app.route("/api/path/<shortname>")
+@app.route("/api/path/<teamnum>")
 @cache.cached(timeout=30)
 @flask_cachecontrol.cache_for(seconds=30)
-def api_path(shortname):
+def api_path(teamnum):
     """Render JSON path positions for car"""
 
-    query = f'SELECT * FROM "telemetry" WHERE shortname = \'{shortname}\' and time >= -30d'
+    teamnum = int(teamnum)
+    query = f'SELECT * FROM "telemetry" WHERE teamnum = {teamnum} and time >= -30d'
     table = client.query(query=query, database=INFLUX_BUCKET, language="influxql")
 
     df = table.select(['time', 'latitude', 'longitude', 'altitude', 'solarEnergy']) \

@@ -8,7 +8,7 @@ window.wsc = (function() {
   // Current positions data, updated on a loop.
   let data;
 
-  // Marker references, these are indexed by the 'shortname'.
+  // Marker references, these are indexed by the 'teamnum'.
   const markers = {};
 
 
@@ -44,8 +44,8 @@ window.wsc = (function() {
     }
 
     // Fetch historical positions (path) for a car.
-    async function getPaths(shortname) {
-      return await get(telemetry, 'api/path/' + shortname);
+    async function getPath(teamnum) {
+      return await get(telemetry, 'api/path/' + teamnum);
     }
 
     // Fetch Sprout content managed data.
@@ -55,7 +55,7 @@ window.wsc = (function() {
 
     return {
       getPositions,
-      getPaths,
+      getPath,
       getSproutData,
     }
   })();
@@ -133,13 +133,13 @@ window.wsc = (function() {
 
 
   /**
-   * Create/update markers on the map, deduplicated by shortname.
+   * Create/update markers on the map, deduplicated by teamnum.
    */
   function updateMarkers() {
     for (let item of data.items) {
 
-      if (!item.shortname) {
-        console.warn('missing shortname:', item);
+      if (!item.teamnum) {
+        console.warn('missing teamnum:', item);
         continue;
       }
 
@@ -151,7 +151,7 @@ window.wsc = (function() {
         continue;
       }
 
-      let marker = markers[item.shortname];
+      let marker = markers[item.teamnum];
 
       // Update existing markers.
       if (marker) {
@@ -165,7 +165,7 @@ window.wsc = (function() {
       // It's a new marker.
       marker = new google.maps.Marker({
         map: map,
-        title: item.shortname,
+        title: item.team,
         position: {
           lat: item.latitude,
           lng: item.longitude,
@@ -173,10 +173,10 @@ window.wsc = (function() {
       });
 
       // Attach events.
-      marker.addListener("click", () => openMarkerPopup(item.shortname));
+      marker.addListener("click", () => openMarkerPopup(item.teamnum));
 
       // Register it for later updates.
-      markers[item.shortname] = marker;
+      markers[item.teamnum] = marker;
     }
   }
 
@@ -184,8 +184,8 @@ window.wsc = (function() {
   /**
    * Draw the path for a car.
    */
-  async function drawPath(shortname, options = {}) {
-    const path = await api.getPaths(shortname);
+  async function drawPath(teamnum, options = {}) {
+    const path = await api.getPath(teamnum);
 
     options = Object.assign({
       geodesic: true,
@@ -205,14 +205,14 @@ window.wsc = (function() {
   /**
    * Open the popup for a marker.
    */
-  async function openMarkerPopup(shortname) {
+  async function openMarkerPopup(teamnum) {
     infoWindow.close();
 
-    const marker = markers[shortname];
-    const item = data.items.find(item => item.shortname === shortname);
+    const marker = markers[teamnum];
+    const item = data.items.find(item => item.teamnum === teamnum);
 
     if (!marker || !item) {
-      throw new Error('invalid shortname');
+      throw new Error('invalid teamnum');
     }
 
     // This is cached ~5 minutes.
