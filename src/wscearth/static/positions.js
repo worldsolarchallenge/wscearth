@@ -184,18 +184,21 @@ window.wsc = (function() {
   /**
    * Draw the path for a car.
    */
-  async function drawPath(shortname) {
+  async function drawPath(shortname, options = {}) {
     const path = await api.getPaths(shortname);
 
-    const poly = new google.maps.Polyline({
-      path: path.map(item => ({ lat: item.latitude, lng: item.longitude })),
+    options = Object.assign({
       geodesic: true,
       strokeColor: '#FF0000',
       strokeOpacity: 1.0,
       strokeWeight: 2,
-    });
+    }, options || {});
 
+    options.path = path.map(item => ({ lat: item.latitude, lng: item.longitude }));
+
+    const poly = new google.maps.Polyline(options);
     poly.setMap(map);
+    return poly;
   }
 
 
