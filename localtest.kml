@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.0">
+<Document>
+<NetworkLink>
+<Name>Local kml</Name>
+<Link>
+<href>http://127.0.0.1:5000/earth/earth.kml</href>
+<refreshMode>onInterval</refreshMode>
+<refreshInterval>30</refreshInterval>
+</Link>
+</NetworkLink>
+</Document>
+</kml>
