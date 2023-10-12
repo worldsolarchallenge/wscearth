@@ -89,6 +89,50 @@ window.wsc = (function() {
 
 
   /**
+   * Live time-ago for fun and profit.
+   */
+  const timeago = (function() {
+    function register() {
+      const elements = document.querySelectorAll('[data-timeago]');
+      for (const element of elements) {
+        render(element);
+      }
+    }
+
+    function render(element) {
+      const when = parseInt(element.getAttribute('data-timeago'));
+      element.removeAttribute('date-timeago');
+
+      (function inner() {
+        const seconds = Math.floor((Date.now() - when) / 1000);
+
+        element.textContent = format(seconds);
+
+        if (document.body.contains(element)) {
+          setTimeout(inner, 1000);
+        }
+      })();
+    }
+
+    function format(seconds) {
+      switch (true) {
+        case seconds < 60: return `${seconds} seconds`;
+        case seconds < 3600: return `${Math.floor(seconds / 60)} minutes`;
+        case seconds < 86400: return `${Math.floor(seconds / 3600)} hours`;
+        case seconds < 604800: return `${Math.floor(seconds / 86400)} days`;
+        default: return `${Math.floor(seconds / 604800)} weeks`;
+      }
+    }
+
+    return {
+      register,
+      render,
+      format,
+    }
+  })();
+
+
+  /**
    * Create/update markers on the map, deduplicated by shortname.
    */
   function updateMarkers() {
@@ -178,7 +222,7 @@ window.wsc = (function() {
       `<p><b>Latitude:</b><span>${item.latitude}</span></p>`,
       `<p><b>Longitude:</b><span>${item.longitude}</span></p>`,
       `<p><b>GPS last updated:</b><span>${gps_when.toLocaleString()} &nbsp; <i title="UTC + 9:30">Darwin time</i></span></p>`,
-      `<p><b>GPS data age:</b><span>${gps_age} seconds</span></p>`,
+      `<p><b>GPS data age:</b><span data-timeago="${item.time}">${gps_age} seconds</span></p>`,
     ];
 
     // TODO not present in telemetry data (yet?).
@@ -197,6 +241,9 @@ window.wsc = (function() {
     infoWindow.close();
     infoWindow.setContent(html.join(''));
     infoWindow.open(marker.getMap(), marker);
+
+    // Keep the GPS age up-to-date.
+    setTimeout(() => timeago.register(), 200);
   }
 
 
