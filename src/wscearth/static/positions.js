@@ -206,6 +206,8 @@ window.wsc = (function() {
    * Open the popup for a marker.
    */
   async function openMarkerPopup(shortname) {
+    infoWindow.close();
+
     const marker = markers[shortname];
     const item = data.items.find(item => item.shortname === shortname);
 
@@ -242,12 +244,13 @@ window.wsc = (function() {
 
     html.push('</div>');
 
-    infoWindow.close();
     infoWindow.setContent(html.join(''));
     infoWindow.open(marker.getMap(), marker);
 
     // Keep the GPS age up-to-date.
     setTimeout(() => timeago.register(), 200);
+
+    return marker;
   }
 
 
@@ -292,5 +295,7 @@ window.wsc = (function() {
     drawPath,
     openMarkerPopup,
     initMap,
+    getMap: () => map,
+    getInfoWindow: () => infoWindow,
   }
 })();
