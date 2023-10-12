@@ -120,8 +120,8 @@ def earthkml():
     netlink = kml.newnetworklink(name="Latest Positions")
     netlink.refreshvisibility = 0
     netlink.link.href = app.url_for('latestkml', _external=True)
-    netlink.link.viewrefreshmode = simplekml.RefreshMode.oninterval
-    netlink.link.refreshmode = 10.0
+    netlink.link.refreshmode = simplekml.RefreshMode.oninterval
+    netlink.link.refreshinterval = 10.0
     netlink.visibility = 1
 
     return flask.Response(kml.kml(), mimetype='application/vnd.google-earth.kml+xml')
