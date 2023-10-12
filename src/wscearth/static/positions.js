@@ -1,11 +1,20 @@
 window.wsc = (function() {
+  // Map reference.
   let map;
+
+  // Popup window for markers.
   let infoWindow;
+
+  // Current positions data, updated on a loop.
   let data;
 
+  // Marker references, these are indexed by the 'shortname'.
   const markers = {};
 
-  // API utilities.
+
+  /**
+   * API utilities.
+   */
   const api = (function() {
     const telemetry = new URL(document.currentScript.baseURI);
     const sprout = new URL('https://worldsolarchallenge.org');
@@ -51,6 +60,11 @@ window.wsc = (function() {
     }
   })();
 
+
+  /**
+   * Looping utility.
+   * This is triggered on the map init.
+   */
   const loop = (function() {
     let timer = 0;
 
@@ -73,7 +87,10 @@ window.wsc = (function() {
     }
   })();
 
-  // Create/update markers on the map, deduplicated by shortname.
+
+  /**
+   * Create/update markers on the map, deduplicated by shortname.
+   */
   function updateMarkers() {
     for (let item of data.items) {
 
@@ -114,11 +131,15 @@ window.wsc = (function() {
       // Attach events.
       marker.addListener("click", () => openMarkerPopup(item.shortname));
 
+      // Register it for later updates.
       markers[item.shortname] = marker;
     }
   }
 
-  // Draw a path for a car.
+
+  /**
+   * Draw the path for a car.
+   */
   async function drawPath(shortname) {
     const path = await api.getPaths(shortname);
 
@@ -133,6 +154,10 @@ window.wsc = (function() {
     poly.setMap(map);
   }
 
+
+  /**
+   * Open the popup for a marker.
+   */
   async function openMarkerPopup(shortname) {
     const marker = markers[shortname];
     const item = data.items.find(item => item.shortname === shortname);
@@ -156,11 +181,13 @@ window.wsc = (function() {
       `<p><b>GPS data age:</b><span>${gps_age} seconds</span></p>`,
     ];
 
+    // TODO not present in telemetry data (yet?).
     if (item.dist_adelaide > 1) {
       html.push(`<p><b>Geodesic dist from Darwin:</b><span>${item.dist_darwin} km</span></p>`);
       html.push(`<p><b>Geodesic dist from Adelaide:</b><span>${item.dist_adelaide} km</span></p>`);
     }
 
+    // TODO not present in telemetry data.
     if (item.trailered) {
       html.push('<p><br>This car has been trailered</p>');
     }
@@ -172,6 +199,10 @@ window.wsc = (function() {
     infoWindow.open(marker.getMap(), marker);
   }
 
+
+  /**
+   * Entry point.
+   */
   async function initMap() {
     if (map) {
       throw new Error('already initialized');
@@ -195,8 +226,13 @@ window.wsc = (function() {
     loop.start();
   }
 
+  // Something for the map to tell us it's ready.
   window.__wscinitMap = initMap;
 
+
+  /**
+   * Exports.
+   */
   return {
     api,
     loop,
