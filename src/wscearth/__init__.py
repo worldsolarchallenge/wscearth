@@ -1,5 +1,6 @@
 """WSC Earth is a flask app which renders a map of the current car positions."""
 
+import logging
 import os
 
 from flask import Flask
@@ -48,6 +49,10 @@ print(f"Got GoogleMaps Key: {os.environ.get('GOOGLEMAPS_KEY', None)}")
 flask_googlemaps.GoogleMaps(app)
 
 import wscearth.views # pylint: disable=wrong-import-position
+import wscearth.earth # pylint: disable=wrong-import-position
 
 if __name__ == "__main__":
+    LOG_FORMAT = '%(asctime)s - %(module)s - %(levelname)s - Thread_name: %(threadName)s - %(message)s'
+    logging.basicConfig(
+        format=LOG_FORMAT, level=logging.INFO)
     app.run(debug=True, host="0.0.0.0", port=5000)
