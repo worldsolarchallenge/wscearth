@@ -23,6 +23,12 @@ def index():
     """Render a Google map"""
     return flask.render_template("positions_map.html")
 
+@app.route("/scripts/positions.js")
+@cache.cached()
+def positions_script():
+    """Templated positions.js to allow for base URL rendering"""
+    return flask.render_template("positions.js.j2")
+
 
 @app.route("/api/path/<shortname>")
 def api_path(shortname):
