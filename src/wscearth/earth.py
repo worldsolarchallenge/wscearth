@@ -1,7 +1,6 @@
-"""WSC Earth is a flask app which renders a map of the current car positions."""
+"""Render a KML file of the WSC event"""
 import logging
 import datetime
-import time
 
 import flask
 import flask_cachecontrol
@@ -39,7 +38,7 @@ def latestkml():
     expire_time = expire_time + datetime.timedelta(seconds=30)
     kml.networklinkcontrol.expires = expire_time.isoformat()
 
-    # FIXME: Should some of this come from Karma Bunny?
+    # FIXME: Should some of this come from Karma Bunny? # pylint: disable=fixme
     icons = {
         "Challenger":{
             "href": "http://maps.google.com/mapfiles/kml/paddle/purple-circle.png",
@@ -75,7 +74,12 @@ def latestkml():
             pnt.style.iconstyle.scale = icons[name]["scale"]
         if "hotspot" in icons[name]:
             hotx,hoty = icons[name]["hotspot"]
-            pnt.style.iconstyle.hotspot = simplekml.HotSpot(x=hotx,y=hoty,xunits=simplekml.Units.fraction,yunits=simplekml.Units.fraction)
+            pnt.style.iconstyle.hotspot = \
+                simplekml.HotSpot(
+                    x=hotx,
+                    y=hoty,
+                    xunits=simplekml.Units.fraction,
+                    yunits=simplekml.Units.fraction)
 
     folders = {}
 

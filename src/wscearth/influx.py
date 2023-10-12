@@ -1,10 +1,10 @@
-"""WSC Earth is a flask app which renders a map of the current car positions."""
+"""influx tools for wscearth"""
 import logging
-import simplejson as json
 
 logger = logging.getLogger(__name__)
 
 class WSCInflux:
+    """A class for implementing useful interactions with influxdb"""
     def __init__(self, client):
         self.client = client
 
@@ -28,7 +28,7 @@ SELECT LAST(latitude),latitude,longitude,*
 FROM "telemetry"
 WHERE
 time >= now() - 1d
-GROUP BY shortname"""
+GROUP BY shortname""" # pylint: disable=duplicate-code
 
         table = self.client.query(query=query, language="influxql")
 

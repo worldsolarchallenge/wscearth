@@ -1,6 +1,4 @@
-"""WSC Earth is a flask app which renders a map of the current car positions."""
-
-import os
+"""Basic app endpoints for wscearth"""
 
 import flask
 import flask_cachecontrol
@@ -55,7 +53,7 @@ SELECT LAST(latitude),latitude,longitude,*
 FROM "telemetry"
 WHERE
 time >= now() - 1d
-GROUP BY shortname"""
+GROUP BY shortname""" # pylint: disable=duplicate-code
 
     table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
 
