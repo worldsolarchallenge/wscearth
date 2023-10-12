@@ -54,6 +54,8 @@ def index():
 
 
 @app.route("/api/path/<shortname>")
+@cache.cached(timeout=30)
+@flask_cachecontrol.cache_for(seconds=30)
 def api_path(shortname):
     """Render JSON path positions for car"""
 
