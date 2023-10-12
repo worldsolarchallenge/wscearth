@@ -4,45 +4,16 @@ import os
 
 import flask
 import flask_cachecontrol
-import flask_googlemaps
 from influxdb_client_3 import InfluxDBClient3
 import simplejson as json
 
 # Circular import recommended here: https://flask.palletsprojects.com/en/3.0.x/patterns/packages/
 from wscearth import app,cache # pylint: disable=cyclic-import
 
-INFLUX_URL = os.environ.get(
-    "INFLUX_URL", "https://us-east-1-1.aws.cloud2.influxdata.com"
-)
-INFLUX_ORG = os.environ.get("INFLUX_ORG", "Bridgestone World Solar Challenge")
-INFLUX_TOKEN = os.environ.get("INFLUX_TOKEN", None)
-
-INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "test")
-
-QUERY_TIME = os.environ.get("QUERY_TIME", "-2d")
-
-
-if not INFLUX_TOKEN:
-    raise ValueError("No InfluxDB token set using INFLUX_TOKEN "
-                     "environment variable")
-
-client = InfluxDBClient3(host=INFLUX_URL,
-                         token=INFLUX_TOKEN,
-                         org=INFLUX_ORG,
-                         database=INFLUX_BUCKET)
-
-
-
-
-# SEt up Google Maps
-# Get the Gogole Maps API key
-app.config["GOOGLEMAPS_KEY"] = os.environ.get("GOOGLEMAPS_KEY", None)
-print(f"Got GoogleMaps Key: {os.environ.get('GOOGLEMAPS_KEY', None)}")
-
-flask_googlemaps.GoogleMaps(app)
-
-# See https://github.com/flask-extensions/Flask-GoogleMaps
-# for details of the flask googlemaps extension.
+client = InfluxDBClient3(host=app.config["INFLUX_URL"],
+                         token=app.config["INFLUX_TOKEN"],
+                         org=app.config["INFLUX_ORG"],
+                         database=app.config["INFLUX_BUCKET"])
 
 
 @app.route("/")
@@ -58,7 +29,7 @@ def api_path(shortname):
     """Render JSON path positions for car"""
 
     query = f'SELECT * FROM "telemetry" WHERE shortname = \'{shortname}\' and time >= -30d'
-    table = client.query(query=query, database=INFLUX_BUCKET, language="influxql")
+    table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
 
     df = table.select(['time', 'latitude', 'longitude', 'altitude', 'solarEnergy']) \
         .to_pandas() \
@@ -80,7 +51,7 @@ WHERE
 time >= now() - 1d
 GROUP BY shortname"""
 
-    table = client.query(query=query, database=INFLUX_BUCKET, language="influxql")
+    table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
 
     # Convert to dataframe
     df = table.to_pandas().sort_values(by="time")

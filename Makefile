@@ -2,10 +2,9 @@ DOCKER_NAME=wscearth
 DOCKER_TAG=latest
 DOCKER_REPO=dcasnowdon
 
-INFLUX_URL ?= "https://eastus-1.azure.cloud2.influxdata.com"
+INFLUX_URL ?= "https://us-east-1-1.aws.cloud2.influxdata.com"
 INFLUX_ORG ?= "Bridgestone World Solar Challenge"
 INFLUX_BUCKET ?= test
-QUERY_TIME ?= "-2d"1
 
 GOOGLEMAPS_KEY ?=
 
@@ -26,3 +25,18 @@ run: build
 
 publish: build
 	docker image tag $(DOCKER_NAME):$(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_NAME):$(DOCKER_TAG)
+
+build/testenv:
+		mkdir build
+		python3 -m venv build/testenv
+		source build/testenv/bin/activate && pip install -e .
+
+localtest: build/testenv
+		source $</bin/activate && \
+			INFLUX_TOKEN=$$(cat wsc_bucket_token.key) \
+		flask --app wscearth run --debug
+
+lint: build/testenv
+		source $</bin/activate && \
+				pip install pylint && \
+				pylint $$(git ls-files '*.py')
