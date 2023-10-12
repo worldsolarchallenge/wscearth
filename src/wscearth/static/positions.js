@@ -210,7 +210,8 @@ window.wsc = (function() {
       throw new Error('invalid shortname');
     }
 
-    const team = await api.getSproutData(item.event, item.team);
+    // This is cached ~5 minutes.
+    const team = await api.getSproutData(item.event, item.teamnum);
 
     const gps_when = new Date(item.time);
     const gps_age = (Date.now() - gps_when) / 1000;
