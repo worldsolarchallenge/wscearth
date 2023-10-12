@@ -7,7 +7,7 @@ window.wsc = (function() {
 
   // API utilities.
   const api = (function() {
-    const telemetry = new URL(document.currentScript.baseURI);
+    const telemetry = new URL('{{ url_for("index", _external=True) }}');
     const sprout = new URL('https://worldsolarchallenge.org');
 
     // Generic fetch.
