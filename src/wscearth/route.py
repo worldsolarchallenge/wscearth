@@ -24,7 +24,7 @@ with open("controlstops.yaml", encoding="utf-8") as f:
 def build_route_kml():
     """Render a KMZ of the event route"""
 
-    kml = simplekml.Kml()
+    kml = simplekml.Kml(open=1)
     kml.document = None  # Removes the default document
 
     coords = []

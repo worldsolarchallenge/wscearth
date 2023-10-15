@@ -117,7 +117,7 @@ def latestkml():
 @cache.cached()
 def earthkml():
     """Implement a wrapper KML which references the above"""
-    kml = simplekml.Kml(name="Bridgestone World Solar Challenge")
+    kml = simplekml.Kml(name="Bridgestone World Solar Challenge", open=1)
     netlink = kml.newnetworklink(name="Latest Positions")
     netlink.link.href = app.url_for("latestkml", _external=True)
     netlink.link.refreshmode = simplekml.RefreshMode.oninterval
