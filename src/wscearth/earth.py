@@ -118,15 +118,14 @@ def earthkml():
     """Implement a wrapper KML which references the above"""
     kml = simplekml.Kml(name="Bridgestone World Solar Challenge")
     netlink = kml.newnetworklink(name="Latest Positions")
-    netlink.refreshvisibility = 0
     netlink.link.href = app.url_for('latestkml', _external=True)
     netlink.link.refreshmode = simplekml.RefreshMode.oninterval
     netlink.link.refreshinterval = 10.0
-    netlink.visibility = 0
+    netlink.visibility = 1
 
     netlink = kml.newnetworklink(name="Route")
     netlink.link.href = app.url_for('routekml', _external=True)
-    netlink.visibility = 0
+    netlink.visibility = 1
 
 
     return flask.Response(kml.kml(), mimetype='application/vnd.google-earth.kml+xml')
