@@ -1,0 +1,46 @@
+controlstops:
+  darwin:
+    number: 0
+    name: Darwin
+    km: 0
+    stoptime: 0
+  katherine:
+    number: 1
+    name: Katherine
+    km: 317
+  dunmarra:
+    number: 2
+    name: Dunmarra
+    km: 632
+  tennant:
+    number: 3
+    name: Tennant Creek
+    km: 985
+  barrow:
+    number: 4
+    name: Barrow Creek
+    km: 1210
+  alice:
+    number: 5
+    name: Alice Springs
+    km: 1494
+  erldunda:
+    number: 6
+    name: Erldunda
+    km: 1691
+  coober:
+    number: 7
+    name: Coober Pedy
+    km: 2178
+  glendambo:
+    number: 8
+    name: Glendambo
+    km: 2432
+  portaugusta:
+    number: 9
+    name: Port Augusta
+    km: 2719
+  adelaide:
+    number: 10
+    name: Adelaide
+    km: 3022

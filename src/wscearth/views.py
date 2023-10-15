@@ -35,7 +35,7 @@ def api_path(teamnum):
     """Render JSON path positions for car"""
 
     teamnum = int(teamnum)
-    query = f'SELECT * FROM "telemetry" WHERE shortname = {teamnum} and time >= -30d'
+    query = f'SELECT * FROM "{app.config["measurement"]}" WHERE shortname = {teamnum} and time >= -30d'
     table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
 
     df = table.select(['time', 'latitude', 'longitude', 'altitude', 'solarEnergy']) \
@@ -51,9 +51,9 @@ def api_path(teamnum):
 def api_positions():
     """Render a positions JSON"""
 #    query = "select * from telemetry GROUP BY car"
-    query = """\
+    query = f"""\
 SELECT LAST(latitude),latitude,longitude,*
-FROM "telemetry"
+FROM "{app.config['INFLUX_MEASUREMENT']}"
 WHERE
 time >= now() - 1d
 GROUP BY shortname""" # pylint: disable=duplicate-code
