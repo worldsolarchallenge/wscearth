@@ -32,7 +32,7 @@ def build_route_kml():
         coords.append((point["long"], point["lat"]))
     route = kml.newlinestring(name="Route", description="Bridgestone World Solar Challenge Route", coords=coords)
     route.style.linestyle.width = 4
-    route.style.linestyle.color = "99F5520C"
+    route.style.linestyle.color = "FFF5520C"
 
     controlstops = kml.newfolder()
     logger.critical(controlstop_data)
