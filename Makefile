@@ -6,7 +6,7 @@ INFLUX_URL ?= "https://us-east-1-1.aws.cloud2.influxdata.com"
 INFLUX_ORG ?= "Bridgestone World Solar Challenge"
 INFLUX_BUCKET ?= test
 
-GOOGLEMAPS_KEY ?=
+GOOGLEMAPS_KEY ?= AIzaSyD4cxmf6zr3SMovEYgZZe9eoEQCglqz3L8
 
 #ENV_VARS=INFLUX_URL INFLUX_ORG INFLUX_TOKEN INFLUX_BUCKET QUERY_TIME
 ENV_VARS=INFLUX_TOKEN GOOGLEMAPS_KEY INFLUX_BUCKET
@@ -35,8 +35,7 @@ build/testenv: setup.cfg
 localtest: build/testenv
 		source $</bin/activate && \
 			INFLUX_TOKEN=$$(cat wsc_bucket_token.key) \
-		flask --app wscearth run --debug
-
+		flask --debug --app wscearth run
 lint: build/testenv
 		source $</bin/activate && \
 				pip install pylint && \

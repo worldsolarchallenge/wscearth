@@ -31,7 +31,8 @@ window.wsc = (function() {
 
       if (!res.ok) {
         const message = `${res.status}: ` + await res.text();
-        throw new Error(message);
+        // throw new Error(message);
+        return null;
       }
 
       const json = await res.json();
@@ -222,19 +223,29 @@ window.wsc = (function() {
     const gps_age = (Date.now() - gps_when) / 1000;
 
     const html = [
-      '<div class="map-popup">',
-      `<p class="name"><img src="${team.flag_url}">`,
-      `<a href="${team.site_url}" target="_blank">${team.name}</a></p>`,
+      '<div class="map-popup">'
+    ]
+    if (team){
+      html.push.apply(html, [
+        `<p class="name"><img src="${team.flag_url}">`,
+        `<a href="${team.site_url}" target="_blank">${team.name}</a></p>`
+      ]);
+    }else{
+      html.push.apply(html, [
+        `<p class="name">${item.shortname}</p>`
+      ]);
+    }
+
+    html.push.apply(html,[
       `<p><b>Latitude:</b><span>${item.latitude}</span></p>`,
       `<p><b>Longitude:</b><span>${item.longitude}</span></p>`,
       `<p><b>GPS last updated:</b><span>${gps_when.toLocaleString()} &nbsp; <i title="UTC + 9:30">Darwin time</i></span></p>`,
       `<p><b>GPS data age:</b><span data-timeago="${item.time}">${gps_age} seconds</span></p>`,
-    ];
+    ]);
 
     // TODO not present in telemetry data (yet?).
-    if (item.dist_adelaide > 1) {
-      html.push(`<p><b>Geodesic dist from Darwin:</b><span>${item.dist_darwin} km</span></p>`);
-      html.push(`<p><b>Geodesic dist from Adelaide:</b><span>${item.dist_adelaide} km</span></p>`);
+    if (item.distance) {
+      html.push(`<p><b>Distance from Darwin:</b><span>${item.distance.toFixed(1)} km</span></p>`);
     }
 
     // TODO not present in telemetry data.
