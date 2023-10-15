@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 """Basic app endpoints for wscearth"""
 
 import flask

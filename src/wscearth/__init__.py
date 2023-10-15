@@ -35,7 +35,7 @@ app.config["INFLUX_MEASUREMENT"] = os.environ.get("INFLUX_MEASUREMENT", "telemet
 
 
 if not app.config["INFLUX_TOKEN"]:
-    raise ValueError("No InfluxDB token set using INFLUX_TOKEN " "environment variable")
+    raise ValueError("No InfluxDB token set using INFLUX_TOKEN environment variable")
 
 ###########################
 # Set up Google Maps.
