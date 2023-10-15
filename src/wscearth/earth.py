@@ -33,7 +33,7 @@ wsc_influx = wscearth.influx.WSCInflux(client)
 def latestkml():
     """Render a KML of the event"""
 
-    positions = wsc_influx.get_positions()
+    positions = wsc_influx.get_positions(measurement=app.config["INFLUX_MEASUREMENT"])
 
     kml = simplekml.Kml()
     kml.document = None  # Removes the default document
