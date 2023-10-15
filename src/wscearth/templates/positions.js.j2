@@ -279,8 +279,14 @@ window.wsc = (function() {
       zoom: 4,
     });
 
-    // Add the route KMZ
-    const kmlLayer = new google.maps.KmlLayer({url: '{{ url_for("routekml", _external=True) }}'}, map, );
+    var routeLayer = new google.maps.KmlLayer({
+//    url: 'https://telemetry.worldsolarchallenge.org/wscearth/route.kml'
+    url: '{{ url_for("routekml", _external=True) }}'
+    });
+    google.maps.event.addListener(routeLayer, 'status_changed', function() {
+    console.log(routeLayer.getStatus());
+    })
+    routeLayer.setMap(map);
 
     // Create an info window to share between markers.
     infoWindow = new google.maps.InfoWindow();
