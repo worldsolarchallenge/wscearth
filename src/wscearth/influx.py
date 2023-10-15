@@ -20,12 +20,12 @@ class WSCInflux:
         logger.debug(df)
         return df
 
-    def get_positions(self):
+    def get_positions(self, measurement="telemetry"):
         """Get the most recent position information from each car."""
 
-        query = """\
+        query = f"""\
 SELECT LAST(latitude),latitude,longitude,*
-FROM "telemetry"
+FROM "{measurement}"
 WHERE
 time >= now() - 1d
 GROUP BY shortname""" # pylint: disable=duplicate-code
