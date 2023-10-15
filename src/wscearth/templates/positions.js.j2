@@ -11,6 +11,8 @@ window.wsc = (function() {
   // Marker references, these are indexed by the 'teamnum'.
   const markers = {};
 
+  // URL for route kmz
+  const route_kml_url = '{{ url_for("routekml", _external=True) }}';
 
   /**
    * API utilities.
@@ -138,7 +140,6 @@ window.wsc = (function() {
    */
   function updateMarkers() {
     for (let item of data.items) {
-
       if (!item.teamnum) {
         console.warn('missing teamnum:', item);
         continue;
@@ -277,6 +278,9 @@ window.wsc = (function() {
       center: { lat: -25.0, lng: 133.0 },
       zoom: 4,
     });
+
+    // Add the route KMZ
+    const kmlLayer = new google.maps.KmlLayer({url: '{{ url_for("routekml", _external=True) }}'}, map, );
 
     // Create an info window to share between markers.
     infoWindow = new google.maps.InfoWindow();

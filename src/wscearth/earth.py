@@ -122,6 +122,11 @@ def earthkml():
     netlink.link.href = app.url_for('latestkml', _external=True)
     netlink.link.refreshmode = simplekml.RefreshMode.oninterval
     netlink.link.refreshinterval = 10.0
-    netlink.visibility = 1
+    netlink.visibility = 0
+
+    netlink = kml.newnetworklink(name="Route")
+    netlink.link.href = app.url_for('routekml', _external=True)
+    netlink.visibility = 0
+
 
     return flask.Response(kml.kml(), mimetype='application/vnd.google-earth.kml+xml')
