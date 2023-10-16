@@ -34,14 +34,14 @@ def build_route_kml():
     route.style.linestyle.width = 4
     route.style.linestyle.color = "FFF5520C"
 
-    controlstops = kml.newfolder()
+    controlstops = kml.newfolder(name="Control Points")
     logger.critical(controlstop_data)
     for _, stop in route_data[route_data["name"].isnull() == False].iterrows():  # pylint: disable=singleton-comparison
         logger.debug("Reading data %s", stop)
         logger.debug("Creating control point %s", stop["name"])
         pnt = controlstops.newpoint(name=stop["name"])
         pnt.coords = [(stop["long"], stop["lat"])]
-        pnt.description = f"Control point at {stop['km']:.1f} km. Teams must want FIXME minutes."
+        pnt.description = f"Control point at {stop['km']:.1f} km."  # Teams must want FIXME minutes.
 
         # pnt.style.iconstyle.icon.href = icons[name]["href"]
         # pnt.style.iconstyle.scale = icons[name]["scale"]
