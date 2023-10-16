@@ -41,7 +41,7 @@ def build_route_kml():
         logger.debug("Creating control point %s", stop["name"])
         pnt = controlstops.newpoint(name=stop["name"])
         pnt.coords = [(stop["long"], stop["lat"])]
-        pnt.description = f"Control point at {stop['km']:.1f} km." # Teams must want FIXME minutes.
+        pnt.description = f"Control point at {stop['km']:.1f} km."  # Teams must want FIXME minutes.
 
         # pnt.style.iconstyle.icon.href = icons[name]["href"]
         # pnt.style.iconstyle.scale = icons[name]["scale"]
