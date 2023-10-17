@@ -1,6 +1,8 @@
 # pylint: disable=duplicate-code
 """Basic app endpoints for wscearth"""
 
+import logging
+
 import flask
 import flask_cachecontrol
 from influxdb_client_3 import InfluxDBClient3
@@ -8,6 +10,8 @@ import simplejson as json
 
 # Circular import recommended here: https://flask.palletsprojects.com/en/3.0.x/patterns/packages/
 from wscearth import app, cache  # pylint: disable=cyclic-import
+
+logger = logging.getLogger(__name__)
 
 client = InfluxDBClient3(
     host=app.config["INFLUX_URL"],
@@ -39,7 +43,13 @@ def api_path(teamnum):
     """Render JSON path positions for car"""
 
     teamnum = int(teamnum)
-    query = f'SELECT * FROM "{app.config["measurement"]}" WHERE shortname = {teamnum} and time >= -30d'
+    query = f"""\
+SELECT *
+FROM "{app.config["measurement"]}"
+WHERE shortname = {teamnum} AND
+{"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
+time >= -30d"""
+
     table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
 
     df = table.select(["time", "latitude", "longitude", "altitude", "solarEnergy"]).to_pandas().sort_values(by="time")
@@ -56,7 +66,7 @@ def api_positions():
     query = f"""\
 SELECT LAST(latitude),latitude,longitude,*
 FROM "{app.config['INFLUX_MEASUREMENT']}"
-WHERE
+WHERE {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
 time >= now() - 1d
 GROUP BY shortname"""  # pylint: disable=duplicate-code
 

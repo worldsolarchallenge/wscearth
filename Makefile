@@ -9,7 +9,7 @@ INFLUX_BUCKET ?= test
 GOOGLEMAPS_KEY ?= AIzaSyD4cxmf6zr3SMovEYgZZe9eoEQCglqz3L8
 
 #ENV_VARS=INFLUX_URL INFLUX_ORG INFLUX_TOKEN INFLUX_BUCKET QUERY_TIME
-ENV_VARS=INFLUX_TOKEN GOOGLEMAPS_KEY INFLUX_BUCKET
+ENV_VARS=INFLUX_TOKEN GOOGLEMAPS_KEY INFLUX_BUCKET EXTERNAL_ONLY INFLUX_MEASUREMENT
 
 export $(ENV_VARS)
 
@@ -34,6 +34,7 @@ build/testenv: setup.cfg
 
 localtest: build/testenv
 		source $</bin/activate && \
+			INFLUX_MEASUREMENT=telemetry2 \
 			INFLUX_TOKEN=$$(cat wsc_bucket_token.key) \
 			INFLUX_MEASUREMENT=telemetry2 \
 		flask --debug --app wscearth run
