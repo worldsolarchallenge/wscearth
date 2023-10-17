@@ -33,6 +33,8 @@ app.config["INFLUX_BUCKET"] = os.environ.get("INFLUX_BUCKET", "test")
 
 app.config["INFLUX_MEASUREMENT"] = os.environ.get("INFLUX_MEASUREMENT", "telemetry")
 
+app.config["EXTERNAL_ONLY"] = bool(os.environ.get("EXTERNAL_ONLY", True))
+
 
 if not app.config["INFLUX_TOKEN"]:
     raise ValueError("No InfluxDB token set using INFLUX_TOKEN environment variable")

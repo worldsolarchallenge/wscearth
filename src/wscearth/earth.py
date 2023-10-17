@@ -86,6 +86,11 @@ def latestkml():
     for _, row in positions.iterrows():
         trailered = False
         carclass = row["class"]
+
+        # If External only, filter out official vehicles
+        if app.config["EXTERNAL_ONLY"] and carclass == "Official Vehicles":
+            continue
+
         if trailered:
             folder_name = "Trailered"
         else:
