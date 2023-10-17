@@ -36,6 +36,7 @@ localtest: build/testenv
 		source $</bin/activate && \
 			INFLUX_MEASUREMENT=telemetry2 \
 			INFLUX_TOKEN=$$(cat wsc_bucket_token.key) \
+			INFLUX_MEASUREMENT=telemetry2 \
 		flask --debug --app wscearth run
 lint: build/testenv
 		source $</bin/activate && \
