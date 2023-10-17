@@ -33,7 +33,8 @@ wsc_influx = wscearth.influx.WSCInflux(client)
 def latestkml():
     """Render a KML of the event"""
 
-    positions = wsc_influx.get_positions(measurement=app.config["INFLUX_MEASUREMENT"])
+    positions = wsc_influx.get_positions(measurement=app.config["INFLUX_MEASUREMENT"],
+                                         external_only=app.config["EXTERNAL_ONLY"])
 
     kml = simplekml.Kml()
     kml.document = None  # Removes the default document
@@ -86,10 +87,6 @@ def latestkml():
     for _, row in positions.iterrows():
         trailered = False
         carclass = row["class"]
-
-        # If External only, filter out official vehicles
-        if app.config["EXTERNAL_ONLY"] and carclass == "Official Vehicles":
-            continue
 
         if trailered:
             folder_name = "Trailered"
