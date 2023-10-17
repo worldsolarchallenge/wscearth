@@ -139,6 +139,10 @@ window.wsc = (function() {
    * Create/update markers on the map, deduplicated by teamnum.
    */
   function updateMarkers() {
+    if(!data.items){
+      console.warn('No data found:', item);
+      return;
+    }
     for (let item of data.items) {
       if (!item.teamnum) {
         console.warn('missing teamnum:', item);
