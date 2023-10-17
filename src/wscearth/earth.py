@@ -27,7 +27,7 @@ client = InfluxDBClient3(
 wsc_influx = wscearth.influx.WSCInflux(client)
 
 
-@app.route("/earth/latest.kml")
+@app.route("/latest.kml")
 @cache.cached(timeout=30)
 @flask_cachecontrol.cache_for(seconds=30)
 def latestkml():
@@ -115,7 +115,7 @@ def latestkml():
     return flask.Response(kml.kml(), mimetype="application/vnd.google-earth.kml+xml")
 
 
-@app.route("/earth/earth.kml")
+@app.route("/earth.kml")
 @cache.cached()
 def earthkml():
     """Implement a wrapper KML which references the above"""
