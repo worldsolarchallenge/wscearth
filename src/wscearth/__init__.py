@@ -33,7 +33,7 @@ app.config["INFLUX_BUCKET"] = os.environ.get("INFLUX_BUCKET", "test")
 
 app.config["INFLUX_MEASUREMENT"] = os.environ.get("INFLUX_MEASUREMENT", "telemetry")
 
-app.config["EXTERNAL_ONLY"] = bool(os.environ.get("EXTERNAL_ONLY", "True") == "True")
+app.config["EXTERNAL_ONLY"] = bool(os.environ.get("EXTERNAL_ONLY", "True").lower() == "true")
 
 
 if not app.config["INFLUX_TOKEN"]:

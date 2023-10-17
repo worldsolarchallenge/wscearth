@@ -69,7 +69,6 @@ FROM "{app.config['INFLUX_MEASUREMENT']}"
 WHERE {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
 time >= now() - 1d
 GROUP BY shortname"""  # pylint: disable=duplicate-code
-    logger.critical("Query was:\n%s", query )
 
     table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
 
