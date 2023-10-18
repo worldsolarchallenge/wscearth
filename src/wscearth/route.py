@@ -75,3 +75,9 @@ def routekml():
     """Serve a KML with teh route details"""
     kml = build_route_kml()
     return flask.Response(kml.kml(), mimetype="application/vnd.google-earth.kml+xml")
+
+@app.route("/route.json")
+@cache.cached()
+def routejson():
+    """Serve a json route details."""
+    return flask.Response(route_data.to_json(orient="records"), mimetype="application/json")
