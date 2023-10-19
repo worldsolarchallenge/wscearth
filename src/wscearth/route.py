@@ -43,6 +43,7 @@ def build_route_kml():
         pnt.coords = [(stop["long"], stop["lat"])]
         pnt.description = f"Control point at {stop['km']:.1f} km."  # Teams must want FIXME minutes.
 
+        pnt.iconstyle.icon.href = "https://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png"
         pnt.style.iconstyle.scale = 1.0
         pnt.style.iconstyle.hotspot = simplekml.HotSpot(
                 x=20, y=2, xunits=simplekml.Units.pixels, yunits=simplekml.Units.pixels
