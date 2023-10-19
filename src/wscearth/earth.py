@@ -103,7 +103,7 @@ def latestkml():
         description = f"""\
 {f"Speed: {row['speed']:.1f} km/h" if "speed" in row else ""}
 {f"Driven: {row['distance']:.1f} km" if "distance" in row else ""}
-{f"Last Update: {((pd.Timestamp.now() - row['time']).total_seconds())/60.0 - 570.0:.1f} minutes ago"}
+{f"Last Update: {((pd.Timestamp.now() - row['time']).total_seconds())/60.0 - 570.0:.1f} min ago"}
 """
         pnt.description = description
 
