@@ -45,29 +45,29 @@ def latestkml():
     # FIXME: Should some of this come from Karma Bunny? # pylint: disable=fixme
     icons = {
         "Challenger": {
-            "href": "http://maps.google.com/mapfiles/kml/paddle/purple-circle.png",
+            "href": "https://maps.google.com/mapfiles/kml/paddle/grn-blank.png",
             "scale": 2.0,
             "hotspot": (0.5, 0),
         },
         "Cruiser": {
-            "href": "http://maps.google.com/mapfiles/kml/paddle/blu-blank.png",
+            "href": "https://maps.google.com/mapfiles/kml/paddle/blu-blank.png",
             "scale": 2.0,
             "hotspot": (0.5, 0),
         },
         "Adventure": {
-            "href": "http://maps.google.com/mapfiles/kml/paddle/blu-stars.png",
+            "href": "https://maps.google.com/mapfiles/kml/paddle/blu-stars.png",
             "scale": 2.0,
             "hotspot": (0.5, 0),
         },
         "Trailered": {
-            "href": "http://maps.google.com/mapfiles/kml/paddle/grn-blank.png",
+            "href": "https://maps.google.com/mapfiles/kml/paddle/wht-blank.png",
             "scale": 1.0,
             "hotspot": (0.5, 0),
         },
         "Official Vehicles": {
-            "href": "http://maps.google.com/mapfiles/kml/shapes/caution.png",
-            "scale": 1.0,
-            "hotspot": (0, 0),
+            "href": "https://maps.google.com/mapfiles/kml/paddle/ylw-stars.png",
+            "scale": 2.0,
+            "hotspot": (0.5, 0),
         },
     }
 
@@ -103,7 +103,7 @@ def latestkml():
         description = f"""\
 {f"Speed: {row['speed']:.1f} km/h" if "speed" in row else ""}
 {f"Driven: {row['distance']:.1f} km" if "distance" in row else ""}
-{f"Last Update: {pd.Timestamp.now() - row['time']} ago"}
+{f"Last Update: {((pd.Timestamp.now() - row['time']).total_seconds())/60.0 - 570.0:.1f} minutes ago"}
 """
         pnt.description = description
 

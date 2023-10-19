@@ -31,8 +31,8 @@ def build_route_kml():
     for _, point in route_data.iterrows():
         coords.append((point["long"], point["lat"]))
     route = kml.newlinestring(name="Route", description="Bridgestone World Solar Challenge Route", coords=coords)
-    route.style.linestyle.width = 4
-    route.style.linestyle.color = "FFF5520C"
+    route.style.linestyle.width = 5
+    route.style.linestyle.color = "FF1c3bb8"
 
     controlstops = kml.newfolder(name="Control Points")
     logger.critical(controlstop_data)
@@ -42,6 +42,11 @@ def build_route_kml():
         pnt = controlstops.newpoint(name=stop["name"])
         pnt.coords = [(stop["long"], stop["lat"])]
         pnt.description = f"Control point at {stop['km']:.1f} km."  # Teams must want FIXME minutes.
+
+        pnt.style.iconstyle.scale = 1.0
+        pnt.style.iconstyle.hotspot = simplekml.HotSpot(
+                x=20, y=2, xunits=simplekml.Units.pixels, yunits=simplekml.Units.pixels
+            )
 
         # pnt.style.iconstyle.icon.href = icons[name]["href"]
         # pnt.style.iconstyle.scale = icons[name]["scale"]
