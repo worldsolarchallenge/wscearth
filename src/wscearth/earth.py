@@ -72,6 +72,8 @@ def latestkml():
     }
 
     def _set_icon(pnt, name):
+        if not (name in icons):
+            return
         if "href" in icons[name]:
             pnt.style.iconstyle.icon.href = icons[name]["href"]
         if "scale" in icons[name]:
@@ -88,8 +90,12 @@ def latestkml():
         trailered = False
         carclass = row["class"]
 
+        if "trailering" in row.keys():
+            trailered = row["trailering"]
+
         if trailered:
             folder_name = "Trailered"
+            logger.debug(row)
         else:
             folder_name = carclass
 
@@ -100,6 +106,9 @@ def latestkml():
         pnt.name = f"{row['teamnum']} - {row['shortname']}"
         pnt.coords = [(row["longitude"], row["latitude"])]
 
+        if "time" not in row.keys():
+            logger.error("SHould have time in %s", row)
+
         description = f"""\
 {f"Speed: {row['speed']:.1f} km/h" if "speed" in row else ""}
 {f"Driven: {row['distance']:.1f} km" if "distance" in row else ""}
@@ -107,6 +116,7 @@ def latestkml():
 """
         pnt.description = description
 
+        logger.critical(row)
         _set_icon(pnt, folder_name)
 
         logger.critical(row)
