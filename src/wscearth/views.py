@@ -62,6 +62,23 @@ time >= -30d"""
 @flask_cachecontrol.cache_for(seconds=30)
 def api_positions():
     """Render a positions JSON"""
+    trailering_query = f"""\
+SELECT MAX(trailering)
+FROM "{app.config['INFLUX_MEASUREMENT']}"
+WHERE {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
+time >= now() - 7d
+GROUP BY shortname"""  # pylint: disable=duplicate-code
+    trailering_table = client.query(query=trailering_query, database=app.config["INFLUX_BUCKET"], language="influxql")
+
+    # Convert to dataframe
+    trailering_df = (
+            trailering_table.to_pandas()
+            .reset_index()
+            .rename(columns={"max": "trailering"})
+            [["shortname","trailering"]]
+        )
+
+
     #    query = "select * from telemetry GROUP BY car"
     query = f"""\
 SELECT LAST(latitude),latitude,longitude,*
@@ -73,8 +90,16 @@ GROUP BY shortname"""  # pylint: disable=duplicate-code
     table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
 
     # Convert to dataframe
-    df = table.to_pandas().sort_values(by="time")
+    df = (table.to_pandas()
+            .sort_values(by="time")
+            .drop(columns=["trailering"])
+            .merge(trailering_df, on="shortname", how="left", suffixes=("_original",None))
+        )
     print(df)
+
+
+
+
     # print(df.to_markdown())
 
     # lats = []
