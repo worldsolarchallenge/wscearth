@@ -32,7 +32,6 @@ time >= -30d"""
     def get_positions(self, measurement="telemetry", external_only=True):
         """Get the most recent position information from each car."""
 
-        """Render a positions JSON"""
         trailering_query = f"""\
     SELECT MAX(trailering)
     FROM "{measurement}"

@@ -72,7 +72,7 @@ def latestkml():
     }
 
     def _set_icon(pnt, name):
-        if not (name in icons):
+        if not name in icons:
             return
         if "href" in icons[name]:
             pnt.style.iconstyle.icon.href = icons[name]["href"]
