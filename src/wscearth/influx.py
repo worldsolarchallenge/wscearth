@@ -47,7 +47,7 @@ time >= -30d"""
             .rename(columns={"max": "trailering"})
             [["shortname","trailering"]]
         )
-        print(trailering_df[["shortname","trailering"]])
+#        print(trailering_df[["shortname","trailering"]])
 
         query = f"""\
 SELECT LAST(latitude),latitude,longitude,*
@@ -66,5 +66,4 @@ GROUP BY shortname"""  # pylint: disable=duplicate-code
             .merge(trailering_df, on="shortname", how="left", suffixes=("_original",None))
         )
 
-        logger.debug(df)
         return df

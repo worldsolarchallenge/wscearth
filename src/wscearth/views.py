@@ -95,10 +95,7 @@ GROUP BY shortname"""  # pylint: disable=duplicate-code
             .drop(columns=["trailering"])
             .merge(trailering_df, on="shortname", how="left", suffixes=("_original",None))
         )
-    print(df)
-
-
-
+#    print(df)
 
     # print(df.to_markdown())
 

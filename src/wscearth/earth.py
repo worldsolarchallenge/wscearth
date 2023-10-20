@@ -95,7 +95,6 @@ def latestkml():
 
         if trailered:
             folder_name = "Trailered"
-            logger.debug(row)
         else:
             folder_name = carclass
 
@@ -116,10 +115,7 @@ def latestkml():
 """
         pnt.description = description
 
-        logger.critical(row)
         _set_icon(pnt, folder_name)
-
-        logger.critical(row)
 
     logger.debug("Outputting kml: '%s'", kml.kml())
     return flask.Response(kml.kml(), mimetype="application/vnd.google-earth.kml+xml")
