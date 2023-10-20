@@ -7,6 +7,7 @@ import flask
 import flask_cachecontrol
 from influxdb_client_3 import InfluxDBClient3
 import simplejson as json
+import pandas as pd
 
 # Circular import recommended here: https://flask.palletsprojects.com/en/3.0.x/patterns/packages/
 from wscearth import app, cache  # pylint: disable=cyclic-import
@@ -71,7 +72,9 @@ GROUP BY shortname"""  # pylint: disable=duplicate-code
     trailering_table = client.query(query=trailering_query, database=app.config["INFLUX_BUCKET"], language="influxql")
 
     # Convert to dataframe
-    trailering_df = (
+    trailering_df = pd.DataFrame()
+    if len(trailering_table) > 0:
+        trailering_df = (
             trailering_table.to_pandas()
             .reset_index()
             .rename(columns={"max": "trailering"})
@@ -91,11 +94,15 @@ GROUP BY shortname"""  # pylint: disable=duplicate-code
 
     # Convert to dataframe
     df = (table.to_pandas()
-            .sort_values(by="time")
+        .sort_values(by="time")
+    )
+    df["trailering"] = False
+
+    if not trailering_df.empty:
+        df = (df
             .drop(columns=["trailering"])
             .merge(trailering_df, on="shortname", how="left", suffixes=("_original",None))
         )
-#    print(df)
 
     # print(df.to_markdown())
 

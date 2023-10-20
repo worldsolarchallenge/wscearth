@@ -1,6 +1,8 @@
 """influx tools for wscearth"""
 import logging
 
+import pandas as pd
+
 logger = logging.getLogger(__name__)
 
 
@@ -41,13 +43,15 @@ time >= -30d"""
         trailering_table = self.client.query(query=trailering_query, language="influxql")
 
         # Convert to dataframe
-        trailering_df = (
-            trailering_table.to_pandas()
-            .reset_index()
-            .rename(columns={"max": "trailering"})
-            [["shortname","trailering"]]
-        )
-#        print(trailering_df[["shortname","trailering"]])
+        trailering_df = pd.DataFrame()
+        if len(trailering_table) > 0:
+            trailering_df = (
+                trailering_table.to_pandas()
+                .reset_index()
+                .rename(columns={"max": "trailering"})
+                [["shortname","trailering"]]
+            )
+            # print(trailering_df[["shortname","trailering"]])
 
         query = f"""\
 SELECT LAST(latitude),latitude,longitude,*
@@ -62,8 +66,12 @@ GROUP BY shortname"""  # pylint: disable=duplicate-code
         # Convert to dataframe
         df = (table.to_pandas()
             .sort_values(by="time")
-            .drop(columns=["trailering"])
-            .merge(trailering_df, on="shortname", how="left", suffixes=("_original",None))
         )
+        df["trailering"] = False
 
+        if not trailering_df.empty:
+            df = (df
+                .drop(columns=["trailering"])
+                .merge(trailering_df, on="shortname", how="left", suffixes=("_original",None))
+            )
         return df
