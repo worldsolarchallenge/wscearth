@@ -62,7 +62,7 @@ def build_route_kml():
     return kml
 
 
-@app.route("/route.kmz")
+@app.route("/route2.kmz")
 @cache.cached()
 @flask_cachecontrol.cache_for(hours=3)
 def routekmz():
@@ -77,7 +77,7 @@ def routekmz():
         return flask.Response(t.read(), mimetype="application/vnd.google-earth.kmz+xml")
 
 
-@app.route("/route.kml")
+@app.route("/route2.kml")
 @cache.cached()
 def routekml():
     """Serve a KML with teh route details"""
