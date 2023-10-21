@@ -338,6 +338,9 @@ window.wsc = (function() {
 
     // Create an info window to share between markers.
     infoWindow = new google.maps.InfoWindow();
+    google.maps.event.addListener(map, "click", function(event) {
+      infoWindow.close();
+    });
 
     data = await api.getPositions();
 

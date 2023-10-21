@@ -47,7 +47,7 @@ def api_path(teamnum):
     query = f"""\
 SELECT *
 FROM "{app.config["measurement"]}"
-WHERE shortname = {teamnum} AND
+WHERE teamnum = {teamnum} AND
 {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
 time >= -30d"""
 
@@ -68,7 +68,7 @@ SELECT MAX(trailering)
 FROM "timingsheet"
 WHERE {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
 time >= now() - 7d
-GROUP BY shortname"""  # pylint: disable=duplicate-code
+GROUP BY teamnum"""  # pylint: disable=duplicate-code
     trailering_table = client.query(query=trailering_query, database=app.config["INFLUX_BUCKET"], language="influxql")
 
     # Convert to dataframe
@@ -78,7 +78,7 @@ GROUP BY shortname"""  # pylint: disable=duplicate-code
             trailering_table.to_pandas()
             .reset_index()
             .rename(columns={"max": "trailering"})
-            [["shortname","trailering"]]
+            [["teamnum","trailering"]]
         )
 
 
@@ -89,7 +89,7 @@ FROM "{app.config['INFLUX_MEASUREMENT']}"
 WHERE class <> 'Other' AND
 {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
 time >= now() - 1d
-GROUP BY shortname"""  # pylint: disable=duplicate-code
+GROUP BY teamnum"""  # pylint: disable=duplicate-code
 
     table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
 
@@ -99,11 +99,17 @@ GROUP BY shortname"""  # pylint: disable=duplicate-code
     )
     df["trailering"] = False
 
+    logger.critical("DF: \n%s", df)
+    logger.critical("Trailering: \n%s", trailering_df)
+
     if not trailering_df.empty:
         df = (df
             .drop(columns=["trailering"])
-            .merge(trailering_df, on="shortname", how="left", suffixes=("_original",None))
+            .merge(trailering_df, on="teamnum", how="left", suffixes=("_original",None))
         )
+
+    logger.critical("Merged: \n%s", df)
+
 
     # print(df.to_markdown())
 
