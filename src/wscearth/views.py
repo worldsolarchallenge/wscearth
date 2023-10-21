@@ -65,7 +65,7 @@ def api_positions():
     """Render a positions JSON"""
     trailering_query = f"""\
 SELECT MAX(trailering)
-FROM "{app.config['INFLUX_MEASUREMENT']}"
+FROM "timingsheet"
 WHERE {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
 time >= now() - 7d
 GROUP BY shortname"""  # pylint: disable=duplicate-code

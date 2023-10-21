@@ -31,13 +31,15 @@ time >= -30d"""
         logger.debug(df)
         return df
 
-    def get_positions(self, measurement="telemetry", external_only=True):
+    def get_positions(self, measurement="telemetry", timing_measurement="timingsheet", external_only=True):
         """Get the most recent position information from each car."""
 
         trailering_query = f"""\
     SELECT MAX(trailering)
-    FROM "{measurement}"
-    WHERE {"class <> 'Official Vehicles' AND " if external_only else ""}
+    FROM "{timing_measurement}"
+    WHERE
+    class <> 'Other' AND
+    {"class <> 'Official Vehicles' AND " if external_only else ""}
     time >= now() - 7d
     GROUP BY shortname"""  # pylint: disable=duplicate-code
         trailering_table = self.client.query(query=trailering_query, language="influxql")
@@ -57,6 +59,7 @@ time >= -30d"""
 SELECT LAST(latitude),latitude,longitude,*
 FROM "{measurement}"
 WHERE
+class <> 'Other' AND
 {"class <> 'Official Vehicles' AND " if external_only else ""}
 time >= now() - 1d
 GROUP BY shortname"""  # pylint: disable=duplicate-code
