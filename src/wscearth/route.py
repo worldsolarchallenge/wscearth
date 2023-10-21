@@ -44,11 +44,11 @@ def build_route_kml():
         pnt.coords = [(stop["long"], stop["lat"])]
         pnt.description = f"Control point at {stop['km']:.1f} km."  # Teams must want FIXME minutes.
 
-        pnt.style.iconstyle.icon.href = "https://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png"
-        pnt.style.iconstyle.scale = 1.0
-        pnt.style.iconstyle.hotspot = simplekml.HotSpot(
-                x=20, y=2, xunits=simplekml.Units.pixels, yunits=simplekml.Units.pixels
-            )
+        pnt.style.iconstyle.icon.href = "https://maps.google.com/mapfiles/kml/pushpin/red-pushpin.png"
+#        pnt.style.iconstyle.scale = 1.0
+#        pnt.style.iconstyle.hotspot = simplekml.HotSpot(
+#                x=20, y=2, xunits=simplekml.Units.pixels, yunits=simplekml.Units.pixels
+#            )
 
         # pnt.style.iconstyle.icon.href = icons[name]["href"]
         # pnt.style.iconstyle.scale = icons[name]["scale"]
@@ -62,7 +62,7 @@ def build_route_kml():
     return kml
 
 
-@app.route("/route2.kmz")
+@app.route("/route3.kmz")
 @cache.cached()
 @flask_cachecontrol.cache_for(hours=3)
 def routekmz():
@@ -77,7 +77,7 @@ def routekmz():
         return flask.Response(t.read(), mimetype="application/vnd.google-earth.kmz+xml")
 
 
-@app.route("/route2.kml")
+@app.route("/route3.kml")
 @cache.cached()
 def routekml():
     """Serve a KML with teh route details"""
