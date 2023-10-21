@@ -86,7 +86,8 @@ GROUP BY shortname"""  # pylint: disable=duplicate-code
     query = f"""\
 SELECT LAST(latitude),latitude,longitude,*
 FROM "{app.config['INFLUX_MEASUREMENT']}"
-WHERE {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
+WHERE class <> 'Other' AND
+{"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
 time >= now() - 1d
 GROUP BY shortname"""  # pylint: disable=duplicate-code
 
