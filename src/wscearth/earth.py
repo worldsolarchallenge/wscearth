@@ -50,7 +50,7 @@ def latestkml():
             "hotspot": (0.5, 0),
         },
         "Cruiser": {
-            "href": "https://maps.google.com/mapfiles/kml/paddle/blu-blank.png",
+            "href": "https://maps.google.com/mapfiles/kml/paddle/ltblu-blank.png",
             "scale": 2.0,
             "hotspot": (0.5, 0),
         },
