@@ -35,14 +35,14 @@ def build_route_kml():
     route.style.linestyle.width = 5
     route.style.linestyle.color = "FF1c3bb8"
 
-    controlstops = kml.newfolder(name="Control Points")
+    controlstops = kml.newfolder(name="NRMA Control Stops")
     logger.critical(controlstop_data)
     for _, stop in route_data[route_data["name"].isnull() == False].iterrows():  # pylint: disable=singleton-comparison
         logger.debug("Reading data %s", stop)
         logger.debug("Creating control point %s", stop["name"])
         pnt = controlstops.newpoint(name=stop["name"])
         pnt.coords = [(stop["long"], stop["lat"])]
-        pnt.description = f"Control point at {stop['km']:.1f} km."  # Teams must want FIXME minutes.
+        pnt.description = f"NRMA Control stop at {stop['km']:.1f} km."  # Teams must want FIXME minutes.
 
         pnt.style.iconstyle.icon.href = "https://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png"
         pnt.style.iconstyle.scale = 1.0
@@ -62,7 +62,7 @@ def build_route_kml():
     return kml
 
 
-@app.route("/route3.kmz")
+@app.route("/route4.kmz")
 @cache.cached()
 @flask_cachecontrol.cache_for(hours=3)
 def routekmz():
@@ -77,7 +77,7 @@ def routekmz():
         return flask.Response(t.read(), mimetype="application/vnd.google-earth.kmz+xml")
 
 
-@app.route("/route3.kml")
+@app.route("/route4.kml")
 @cache.cached()
 def routekml():
     """Serve a KML with teh route details"""
