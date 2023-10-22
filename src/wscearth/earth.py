@@ -93,7 +93,7 @@ def latestkml():
         if "trailering" in row.keys():
             trailered = row["trailering"]
 
-        if trailered:
+        if carclass != "Official Vehicles" and trailered:
             folder_name = "Trailered"
         else:
             folder_name = carclass
