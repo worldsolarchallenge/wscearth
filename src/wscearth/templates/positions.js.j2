@@ -297,6 +297,10 @@ window.wsc = (function() {
       html.push(`<p><b>Distance from Darwin:</b><span>${item.distance.toFixed(1)} km</span></p>`);
     }
 
+    if (item.speed) {
+      html.push(`<p><b>Current speed:</b><span>${item.speed.toFixed(1)} km/h</span></p>`);
+    }
+
     // TODO not present in telemetry data.
     if (item.trailering) {
       html.push('<p><br>This team has finished competing. They are continuing along the route with extra charge from the grid or on a trailer.</p>');
