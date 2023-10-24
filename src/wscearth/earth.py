@@ -87,7 +87,7 @@ def latestkml():
 
     folders = {}
 
-    for _, row in positions.iterrows():
+    for _, row in positions.sort_values(by="teamnum").iterrows():
         trailered = False
         carclass = row["class"]
 
