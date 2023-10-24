@@ -38,6 +38,7 @@ def latestkml():
 
     kml = simplekml.Kml()
     kml.document = None  # Removes the default document
+    kml.resetidcounter()
     expire_time = pytz.utc.localize(datetime.datetime.utcnow())
     expire_time = expire_time + datetime.timedelta(seconds=30)
     kml.networklinkcontrol.expires = expire_time.isoformat()
@@ -45,33 +46,35 @@ def latestkml():
     # FIXME: Should some of this come from Karma Bunny? # pylint: disable=fixme
     icons = {
         "Challenger": {
-            "href": "http://maps.google.com/mapfiles/kml/paddle/purple-circle.png",
+            "href": "https://maps.google.com/mapfiles/kml/paddle/grn-blank.png",
             "scale": 2.0,
             "hotspot": (0.5, 0),
         },
         "Cruiser": {
-            "href": "http://maps.google.com/mapfiles/kml/paddle/blu-blank.png",
+            "href": "https://maps.google.com/mapfiles/kml/paddle/purple-blank.png",
             "scale": 2.0,
             "hotspot": (0.5, 0),
         },
         "Adventure": {
-            "href": "http://maps.google.com/mapfiles/kml/paddle/blu-stars.png",
+            "href": "https://maps.google.com/mapfiles/kml/paddle/blu-stars.png",
             "scale": 2.0,
             "hotspot": (0.5, 0),
         },
         "Trailered": {
-            "href": "http://maps.google.com/mapfiles/kml/paddle/grn-blank.png",
+            "href": "https://maps.google.com/mapfiles/kml/paddle/wht-blank.png",
             "scale": 1.0,
             "hotspot": (0.5, 0),
         },
         "Official Vehicles": {
-            "href": "http://maps.google.com/mapfiles/kml/shapes/caution.png",
-            "scale": 1.0,
-            "hotspot": (0, 0),
+            "href": "https://maps.google.com/mapfiles/kml/paddle/ylw-stars.png",
+            "scale": 2.0,
+            "hotspot": (0.5, 0),
         },
     }
 
     def _set_icon(pnt, name):
+        if not name in icons:
+            return
         if "href" in icons[name]:
             pnt.style.iconstyle.icon.href = icons[name]["href"]
         if "scale" in icons[name]:
@@ -84,11 +87,14 @@ def latestkml():
 
     folders = {}
 
-    for _, row in positions.iterrows():
+    for _, row in positions.sort_values(by="teamnum").iterrows():
         trailered = False
         carclass = row["class"]
 
-        if trailered:
+        if "trailering" in row.keys():
+            trailered = row["trailering"]
+
+        if carclass != "Official Vehicles" and trailered:
             folder_name = "Trailered"
         else:
             folder_name = carclass
@@ -100,16 +106,17 @@ def latestkml():
         pnt.name = f"{row['teamnum']} - {row['shortname']}"
         pnt.coords = [(row["longitude"], row["latitude"])]
 
+        if "time" not in row.keys():
+            logger.error("SHould have time in %s", row)
+
         description = f"""\
 {f"Speed: {row['speed']:.1f} km/h" if "speed" in row else ""}
 {f"Driven: {row['distance']:.1f} km" if "distance" in row else ""}
-{f"Last Update: {pd.Timestamp.now() - row['time']} ago"}
+{f"Last Update: {((pd.Timestamp.now() - row['time']).total_seconds())/60.0:.1f} min ago"}
 """
         pnt.description = description
 
         _set_icon(pnt, folder_name)
-
-        logger.critical(row)
 
     logger.debug("Outputting kml: '%s'", kml.kml())
     return flask.Response(kml.kml(), mimetype="application/vnd.google-earth.kml+xml")

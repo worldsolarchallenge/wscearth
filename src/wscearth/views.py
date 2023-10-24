@@ -7,6 +7,7 @@ import flask
 import flask_cachecontrol
 from influxdb_client_3 import InfluxDBClient3
 import simplejson as json
+import pandas as pd
 
 # Circular import recommended here: https://flask.palletsprojects.com/en/3.0.x/patterns/packages/
 from wscearth import app, cache  # pylint: disable=cyclic-import
@@ -46,7 +47,7 @@ def api_path(teamnum):
     query = f"""\
 SELECT *
 FROM "{app.config["measurement"]}"
-WHERE shortname = {teamnum} AND
+WHERE teamnum = {teamnum} AND
 {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
 time >= -30d"""
 
@@ -62,19 +63,54 @@ time >= -30d"""
 @flask_cachecontrol.cache_for(seconds=30)
 def api_positions():
     """Render a positions JSON"""
+    trailering_query = f"""\
+SELECT MAX(trailering)
+FROM "timingsheet"
+WHERE {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
+time >= now() - 7d
+GROUP BY teamnum"""  # pylint: disable=duplicate-code
+    trailering_table = client.query(query=trailering_query, database=app.config["INFLUX_BUCKET"], language="influxql")
+
+    # Convert to dataframe
+    trailering_df = pd.DataFrame()
+    if len(trailering_table) > 0:
+        trailering_df = (
+            trailering_table.to_pandas()
+            .reset_index()
+            .rename(columns={"max": "trailering"})
+            [["teamnum","trailering"]]
+        )
+
+
     #    query = "select * from telemetry GROUP BY car"
     query = f"""\
 SELECT LAST(latitude),latitude,longitude,*
 FROM "{app.config['INFLUX_MEASUREMENT']}"
-WHERE {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
+WHERE class <> 'Other' AND
+{"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
 time >= now() - 1d
-GROUP BY shortname"""  # pylint: disable=duplicate-code
+GROUP BY teamnum"""  # pylint: disable=duplicate-code
 
     table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
 
     # Convert to dataframe
-    df = table.to_pandas().sort_values(by="time")
-    print(df)
+    df = (table.to_pandas()
+        .sort_values(by="time")
+    )
+    df["trailering"] = False
+
+    logger.critical("DF: \n%s", df)
+    logger.critical("Trailering: \n%s", trailering_df)
+
+    if not trailering_df.empty:
+        df = (df
+            .drop(columns=["trailering"])
+            .merge(trailering_df, on="teamnum", how="left", suffixes=("_original",None))
+        )
+
+    logger.critical("Merged: \n%s", df)
+
+
     # print(df.to_markdown())
 
     # lats = []
