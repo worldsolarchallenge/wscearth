@@ -38,6 +38,7 @@ def latestkml():
 
     kml = simplekml.Kml()
     kml.document = None  # Removes the default document
+    kml.resetidcounter()
     expire_time = pytz.utc.localize(datetime.datetime.utcnow())
     expire_time = expire_time + datetime.timedelta(seconds=30)
     kml.networklinkcontrol.expires = expire_time.isoformat()
