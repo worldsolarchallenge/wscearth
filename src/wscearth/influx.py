@@ -61,7 +61,7 @@ FROM "{measurement}"
 WHERE
 class <> 'Other' AND
 {"class <> 'Official Vehicles' AND " if external_only else ""}
-time >= now() - 1d
+time >= now() - 10h
 GROUP BY shortname"""  # pylint: disable=duplicate-code
 
         table = self.client.query(query=query, language="influxql")

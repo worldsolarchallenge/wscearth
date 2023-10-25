@@ -88,7 +88,7 @@ SELECT LAST(latitude),latitude,longitude,*
 FROM "{app.config['INFLUX_MEASUREMENT']}"
 WHERE class <> 'Other' AND
 {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
-time >= now() - 1d
+time >= now() - 10h
 GROUP BY teamnum"""  # pylint: disable=duplicate-code
 
     table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
