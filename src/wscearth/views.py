@@ -111,7 +111,7 @@ GROUP BY teamnum"""  # pylint: disable=duplicate-code
     logger.critical("Merged: \n%s", df)
 
 
-    # print(df.to_markdown())
+    print(df)
 
     # lats = []
     # longs = []

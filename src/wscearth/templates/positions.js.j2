@@ -288,7 +288,7 @@ window.wsc = (function() {
 
     html.push.apply(html,[
       `<p><b>Coordinates:</b><span>${item.latitude},${item.longitude} (<a href="http://maps.google.com/maps?q=&layer=c&cbll=${item.latitude},${item.longitude}">Street View</a>)</span></p>`,
-      `<p><b>GPS last updated:</b><span>${gps_when.toLocaleString(('en-GB', { timeZone: 'UTC+9:30' }))} &nbsp; <i title="UTC + 9:30">Darwin time</i></span></p>`,
+      `<p><b>GPS last updated:</b><span>${gps_when.toLocaleString('en-GB', { timeZone: 'Australia/Darwin' }) } &nbsp; <i title="UTC + 9:30">Darwin time</i></span></p>`,
       `<p><b>GPS data age:</b><span data-timeago="${item.time}">${gps_age} seconds</span></p>`,
     ]);
 
