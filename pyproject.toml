@@ -1,13 +1,54 @@
 # See https://packaging.python.org/en/latest/tutorials/packaging-projects/
 
+[project]
+name = "wscearth"
+dynamic = ["version"]
+dependencies = [
+    "htmlmin2",
+    "packaging>=25.0",
+    "setuptools_scm>=8.3",
+    "Flask==2.3.3",
+    "Werkzeug",
+    "Jinja2",
+    "flask-googlemaps",
+    "Flask-CacheControl",
+    "Flask-Caching",
+    "flask_cors",
+    "influxdb3-python",
+    "pandas",
+    "simplejson",
+    "simplekml"
+]
+
 [build-system]
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+requires = [
+    "setuptools>=64",
+    "packaging>=25.0",
+    "setuptools_scm[toml]>=8.3",
+    "legacy-cgi"
+]
+
 build-backend = "setuptools.build_meta"
 
 [tool.black]
+target-version = ['py313']
 line-length = 120
-
-[tool.setuptools_scm]
 
 [tool.pylint]
 max-line-length = 120
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = """
+    fixme,
+    redefined-outer-name
+"""
+
+[tool.setuptools_scm]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+

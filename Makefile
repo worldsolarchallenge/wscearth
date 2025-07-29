@@ -26,9 +26,10 @@ run: build
 publish: build
 	docker image tag $(DOCKER_NAME):$(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_NAME):$(DOCKER_TAG)
 
-build/testenv: setup.cfg
+build/testenv: pyproject.toml
 		mkdir -p build
 		python3 -m venv build/testenv
+		pip install --upgrade pip setuptools wheel legacy-cgi
 		source build/testenv/bin/activate && pip install -e .
 		touch $@
 
