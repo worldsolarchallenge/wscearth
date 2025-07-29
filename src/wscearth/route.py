@@ -42,7 +42,7 @@ def build_route_kml():
         logger.debug("Creating control point %s", stop["name"])
         pnt = controlstops.newpoint(name=stop["name"])
         pnt.coords = [(stop["long"], stop["lat"])]
-        pnt.description = f"NRMA Control stop at {stop['km']:.1f} km."  # Teams must want FIXME minutes.
+        pnt.description = f"Control stop at {stop['km']:.1f} km."  # Teams must want FIXME minutes.
 
         pnt.style.iconstyle.icon.href = "https://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png"
         pnt.style.iconstyle.scale = 1.0
