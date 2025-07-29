@@ -38,7 +38,13 @@ package_dir=
 
 include_package_data = True
 
+build_requires =
+    wheel
+    setuptools
+    legacgy-cgi
+
 install_requires =
+    legacy-cgi
     Flask==2.3.3
     Werkzeug
     Jinja2

@@ -6,7 +6,7 @@ INFLUX_URL ?= "https://us-east-1-1.aws.cloud2.influxdata.com"
 INFLUX_ORG ?= "Bridgestone World Solar Challenge"
 INFLUX_BUCKET ?= test
 
-GOOGLEMAPS_KEY ?= AIzaSyD4cxmf6zr3SMovEYgZZe9eoEQCglqz3L8
+GOOGLEMAPS_KEY ?=
 
 #ENV_VARS=INFLUX_URL INFLUX_ORG INFLUX_TOKEN INFLUX_BUCKET QUERY_TIME
 ENV_VARS=INFLUX_TOKEN GOOGLEMAPS_KEY INFLUX_BUCKET EXTERNAL_ONLY INFLUX_MEASUREMENT
@@ -26,9 +26,10 @@ run: build
 publish: build
 	docker image tag $(DOCKER_NAME):$(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_NAME):$(DOCKER_TAG)
 
-build/testenv: setup.cfg
+build/testenv: pyproject.toml
 		mkdir -p build
 		python3 -m venv build/testenv
+		pip install --upgrade pip setuptools wheel legacy-cgi
 		source build/testenv/bin/activate && pip install -e .
 		touch $@
 
@@ -36,6 +37,7 @@ localtest: build/testenv
 		source $</bin/activate && \
 			INFLUX_MEASUREMENT=telemetry4 \
 			INFLUX_TOKEN=$$(cat wsc_bucket_token.key) \
+			GOOGLEMAPS_KEY=$$(cat googlemaps.key) \
 		flask --debug --app wscearth run
 lint: build/testenv
 		source $</bin/activate && \

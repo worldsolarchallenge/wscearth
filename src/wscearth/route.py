@@ -35,14 +35,14 @@ def build_route_kml():
     route.style.linestyle.width = 5
     route.style.linestyle.color = "FF1c3bb8"
 
-    controlstops = kml.newfolder(name="NRMA Control Stops")
+    controlstops = kml.newfolder(name="Control Stops")
     logger.critical(controlstop_data)
     for _, stop in route_data[route_data["name"].isnull() == False].iterrows():  # pylint: disable=singleton-comparison
         logger.debug("Reading data %s", stop)
         logger.debug("Creating control point %s", stop["name"])
         pnt = controlstops.newpoint(name=stop["name"])
         pnt.coords = [(stop["long"], stop["lat"])]
-        pnt.description = f"NRMA Control stop at {stop['km']:.1f} km."  # Teams must want FIXME minutes.
+        pnt.description = f"Control stop at {stop['km']:.1f} km."  # Teams must want FIXME minutes.
 
         pnt.style.iconstyle.icon.href = "https://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png"
         pnt.style.iconstyle.scale = 1.0
