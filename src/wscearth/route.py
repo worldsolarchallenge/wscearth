@@ -35,7 +35,7 @@ def build_route_kml():
     route.style.linestyle.width = 5
     route.style.linestyle.color = "FF1c3bb8"
 
-    controlstops = kml.newfolder(name="NRMA Control Stops")
+    controlstops = kml.newfolder(name="Control Stops")
     logger.critical(controlstop_data)
     for _, stop in route_data[route_data["name"].isnull() == False].iterrows():  # pylint: disable=singleton-comparison
         logger.debug("Reading data %s", stop)
