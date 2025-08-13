@@ -11,7 +11,8 @@ import flask_googlemaps
 
 config = {
     "DEBUG": True,  # some Flask specific configs
-    "CACHE_TYPE": "SimpleCache",  # Flask-Caching related configs
+    "CACHE_TYPE": "FileSystemCache",  # Flask-Caching related configs
+    "CACHE_DIR": os.environ.get("CACHE_DIR", "/tmp/wscearth_cache"),  # Directory for cache files
     "CACHE_DEFAULT_TIMEOUT": 300,
 }
 app = Flask(__name__)
