@@ -34,24 +34,24 @@ time >= -30d"""
     def get_positions(self, measurement="telemetry", timing_measurement="timingsheet", external_only=True):
         """Get the most recent position information from each car."""
 
-        trailering_query = f"""\
-    SELECT MAX(trailering)
+        competing_query = f"""\
+    SELECT MIN(Competing)
     FROM "{timing_measurement}"
     WHERE
     class <> 'Other' AND
     {"class <> 'Official Vehicles' AND " if external_only else ""}
     time >= now() - 7d
     GROUP BY shortname"""  # pylint: disable=duplicate-code
-        trailering_table = self.client.query(query=trailering_query, language="influxql")
+        competing_table = self.client.query(query=competing_query, language="influxql")
 
         # Convert to dataframe
-        trailering_df = pd.DataFrame()
-        if len(trailering_table) > 0:
-            trailering_df = (
-                trailering_table.to_pandas()
+        competing_df = pd.DataFrame()
+        if len(competing_table) > 0:
+            competing_df = (
+                competing_table.to_pandas()
                 .reset_index()
-                .rename(columns={"max": "trailering"})
-                [["shortname","trailering"]]
+                .rename(columns={"min": "competing"})
+                [["shortname","competing"]]
             )
             # print(trailering_df[["shortname","trailering"]])
 
@@ -70,11 +70,12 @@ GROUP BY shortname"""  # pylint: disable=duplicate-code
         df = (table.to_pandas()
             .sort_values(by="time")
         )
-        df["trailering"] = False
+        df["competing"] = True
 
-        if not trailering_df.empty:
+        if not competing_df.empty:
             df = (df
-                .drop(columns=["trailering"])
-                .merge(trailering_df, on="shortname", how="left", suffixes=("_original",None))
+                .drop(columns=["competing"])
+                .merge(competing_df, on="shortname", how="left", suffixes=("_original",None))
             )
+
         return df

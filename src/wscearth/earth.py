@@ -91,8 +91,11 @@ def latestkml():
         competing = True
         carclass = row["class"]
 
-        if "Competing" in row.keys():
-            competing = row["Competing"]
+        if "competing" in row.keys():
+            competing = row["competing"]
+            logger.info("Competing: %s", competing)
+        else:
+            logger.warning("No Competing key in row: %s", row["teamnum"])
 
         if carclass != "Official Vehicles" and not competing:
             folder_name = "Not Competing"
