@@ -13,6 +13,8 @@ ENV_VARS=INFLUX_TOKEN GOOGLEMAPS_KEY INFLUX_BUCKET EXTERNAL_ONLY INFLUX_MEASUREM
 
 export $(ENV_VARS)
 
+LOCAL_PORT ?= 5000
+
 .PHONY: build run
 
 all: run
@@ -21,7 +23,7 @@ build:
 	docker build -t $(DOCKER_NAME):$(DOCKER_TAG) .
 
 run: build
-	docker run -p 5000:5000 $(foreach e,$(ENV_VARS),-e $(e)) $(DOCKER_NAME)
+	docker run -p $(LOCAL_PORT):5000 $(foreach e,$(ENV_VARS),-e $(e)) $(DOCKER_NAME)
 
 publish: build
 	docker image tag $(DOCKER_NAME):$(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_NAME):$(DOCKER_TAG)

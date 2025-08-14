@@ -55,12 +55,12 @@ def latestkml():
             "scale": 2.0,
             "hotspot": (0.5, 0),
         },
-        "Adventure": {
+        "Explorer": {
             "href": "https://maps.google.com/mapfiles/kml/paddle/blu-stars.png",
             "scale": 2.0,
             "hotspot": (0.5, 0),
         },
-        "Trailered": {
+        "Not Competing": {
             "href": "https://maps.google.com/mapfiles/kml/paddle/wht-blank.png",
             "scale": 1.0,
             "hotspot": (0.5, 0),
@@ -95,7 +95,7 @@ def latestkml():
             trailered = row["trailering"]
 
         if carclass != "Official Vehicles" and trailered:
-            folder_name = "Trailered"
+            folder_name = "Not Competing"
         else:
             folder_name = carclass
 

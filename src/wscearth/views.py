@@ -61,26 +61,27 @@ time >= -30d"""
 @app.route("/api/positions")
 @cache.cached(timeout=30)
 @flask_cachecontrol.cache_for(seconds=30)
-def api_positions():
+def api_positions(sample_data=False):
     """Render a positions JSON"""
-    trailering_query = f"""\
-SELECT MAX(trailering)
-FROM "timingsheet"
-WHERE {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
-time >= now() - 7d
-GROUP BY teamnum"""  # pylint: disable=duplicate-code
-    trailering_table = client.query(query=trailering_query, database=app.config["INFLUX_BUCKET"], language="influxql")
+
+    if not sample_data:
+        trailering_query = f"""\
+    SELECT MAX(trailering)
+    FROM "timingsheet"
+    WHERE {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
+    time >= now() - 7d
+    GROUP BY teamnum"""  # pylint: disable=duplicate-code
+        trailering_table = client.query(
+            query=trailering_query, database=app.config["INFLUX_BUCKET"], language="influxql"
+        )
+        trailering_df = trailering_table.to_pandas() if trailering_table.num_rows > 0 else pd.DataFrame()
+    else:
+        # Sample data for testing
+        trailering_df = pd.DataFrame({"teamnum": [1, 2, 3], "max": [True, False, True]})
 
     # Convert to dataframe
-    trailering_df = pd.DataFrame()
-    if len(trailering_table) > 0:
-        trailering_df = (
-            trailering_table.to_pandas()
-            .reset_index()
-            .rename(columns={"max": "trailering"})
-            [["teamnum","trailering"]]
-        )
-
+    if not trailering_df.empty:
+        trailering_df = trailering_df.reset_index().rename(columns={"max": "trailering"})[["teamnum", "trailering"]]
 
     #    query = "select * from telemetry GROUP BY car"
     query = f"""\
@@ -91,25 +92,47 @@ WHERE class <> 'Other' AND
 time >= now() - 10h
 GROUP BY teamnum"""  # pylint: disable=duplicate-code
 
-    table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
+    if not sample_data:
+        table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
+        # Convert to dataframe
+        df = table.to_pandas().sort_values(by="time")
+    else:
+        # Sample data for testing
+        df = pd.DataFrame(
+            {
+                "team": [
+                    "01",
+                    "02",
+                    "03",
+                ],
+                "car": ["Car 1", "Car 2", "Car 3"],
+                "class": ["Challenger", "Cruiser", "Explorer"],
+                "distance": [1500.0, 1600.0, 1700.0],
+                "teamnum": [1, 2, 3],
+                "latitude": [-25.0, -26.0, -27.0],
+                "longitude": [130.0, 131.0, 132.0],
+                "altitude": [100.0, 200.0, 300.0],
+                "avg_speed": [50.0, 60.0, 70.0],
+                "event": ["BWSC2025", "BWSC2025", "BWSC2025"],
+                "event_hours": [10, 11, 12],
+                "messengerId": ["0-3193488", "0-3193489", "0-3193490"],
+                "shortname": ["Team 1", "Team 2", "Team 3"],
+                "speed": [20.0, 30.0, 40.0],
+                "time": pd.date_range(start="2025-08-13", periods=3, freq="H"),
+            }
+        ).sort_values(by="time")
 
-    # Convert to dataframe
-    df = (table.to_pandas()
-        .sort_values(by="time")
-    )
     df["trailering"] = False
 
     logger.critical("DF: \n%s", df)
     logger.critical("Trailering: \n%s", trailering_df)
 
     if not trailering_df.empty:
-        df = (df
-            .drop(columns=["trailering"])
-            .merge(trailering_df, on="teamnum", how="left", suffixes=("_original",None))
+        df = df.drop(columns=["trailering"]).merge(
+            trailering_df, on="teamnum", how="left", suffixes=("_original", None)
         )
 
     logger.critical("Merged: \n%s", df)
-
 
     print(df)
 
@@ -143,3 +166,9 @@ GROUP BY teamnum"""  # pylint: disable=duplicate-code
         },
         ignore_nan=True,
     )
+
+
+@app.route("/api/positions/sample")
+def api_positions_sample():
+    """Return  sample positions data for testing."""
+    return api_positions(sample_data=True)
