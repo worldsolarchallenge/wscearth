@@ -105,12 +105,19 @@ GROUP BY teamnum"""  # pylint: disable=duplicate-code
                     "02",
                     "03",
                 ],
+                "car": ["Car 1", "Car 2", "Car 3"],
                 "class": ["Challenger", "Cruiser", "Explorer"],
+                "distance": [1500.0, 1600.0, 1700.0],
                 "teamnum": [1, 2, 3],
                 "latitude": [-25.0, -26.0, -27.0],
                 "longitude": [130.0, 131.0, 132.0],
-                "altitude": [100, 200, 300],
-                "solarEnergy": [500, 600, 700],
+                "altitude": [100.0, 200.0, 300.0],
+                "avg_speed": [50.0, 60.0, 70.0],
+                "event": ["BWSC2025", "BWSC2025", "BWSC2025"],
+                "event_hours": [10, 11, 12],
+                "messengerId": ["0-3193488", "0-3193489", "0-3193490"],
+                "shortname": ["Team 1", "Team 2", "Team 3"],
+                "speed": [20.0, 30.0, 40.0],
                 "time": pd.date_range(start="2025-08-13", periods=3, freq="H"),
             }
         ).sort_values(by="time")
@@ -163,4 +170,5 @@ GROUP BY teamnum"""  # pylint: disable=duplicate-code
 
 @app.route("/api/positions/sample")
 def api_positions_sample():
+    """Return  sample positions data for testing."""
     return api_positions(sample_data=True)
