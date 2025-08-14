@@ -65,23 +65,24 @@ def api_positions(sample_data=False):
     """Render a positions JSON"""
 
     if not sample_data:
-        trailering_query = f"""\
-    SELECT MAX(trailering)
+        competing_query = f"""\
+    SELECT MIN(Competing)
     FROM "timingsheet"
     WHERE {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
     time >= now() - 7d
     GROUP BY teamnum"""  # pylint: disable=duplicate-code
-        trailering_table = client.query(
-            query=trailering_query, database=app.config["INFLUX_BUCKET"], language="influxql"
+        competing_table = client.query(
+            query=competing_query, database=app.config["INFLUX_BUCKET"], language="influxql"
         )
-        trailering_df = trailering_table.to_pandas() if trailering_table.num_rows > 0 else pd.DataFrame()
+        competing_df = competing_table.to_pandas() if competing_table.num_rows > 0 else pd.DataFrame()
     else:
         # Sample data for testing
-        trailering_df = pd.DataFrame({"teamnum": [1, 2, 3], "max": [True, False, True]})
+        competing_df = pd.DataFrame({"teamnum": [1, 2, 3], "min": [True, False, True]})
 
     # Convert to dataframe
-    if not trailering_df.empty:
-        trailering_df = trailering_df.reset_index().rename(columns={"max": "trailering"})[["teamnum", "trailering"]]
+    if not competing_df.empty:
+        competing_df = competing_df.reset_index().rename(columns={"min": "competing"})[["teamnum", "competing"]]
+        competing_df["trailering"] = ~competing_df["competing"]
 
     #    query = "select * from telemetry GROUP BY car"
     query = f"""\
@@ -122,15 +123,18 @@ GROUP BY teamnum"""  # pylint: disable=duplicate-code
             }
         ).sort_values(by="time")
 
+    df["competing"] = True
     df["trailering"] = False
 
     logger.critical("DF: \n%s", df)
-    logger.critical("Trailering: \n%s", trailering_df)
+    logger.critical("Competing: \n%s", competing_df)
 
-    if not trailering_df.empty:
-        df = df.drop(columns=["trailering"]).merge(
-            trailering_df, on="teamnum", how="left", suffixes=("_original", None)
+    if not competing_df.empty:
+        df = df.drop(columns=["competing"]).merge(
+            competing_df, on="teamnum", how="left", suffixes=("_original", None)
         )
+    else:
+        logger.warning("competing_df was empty")
 
     logger.critical("Merged: \n%s", df)
 
