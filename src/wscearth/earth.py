@@ -88,13 +88,13 @@ def latestkml():
     folders = {}
 
     for _, row in positions.sort_values(by="teamnum").iterrows():
-        trailered = False
+        competing = True
         carclass = row["class"]
 
-        if "trailering" in row.keys():
-            trailered = row["trailering"]
+        if "Competing" in row.keys():
+            competing = row["Competing"]
 
-        if carclass != "Official Vehicles" and trailered:
+        if carclass != "Official Vehicles" and not competing:
             folder_name = "Not Competing"
         else:
             folder_name = carclass
