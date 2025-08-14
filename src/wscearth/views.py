@@ -71,24 +71,17 @@ def api_positions(sample_data=False):
     WHERE {"class <> 'Official Vehicles' AND " if app.config["EXTERNAL_ONLY"] else ""}
     time >= now() - 7d
     GROUP BY teamnum"""  # pylint: disable=duplicate-code
-        trailering_table = client.query(query=trailering_query, database=app.config["INFLUX_BUCKET"], language="influxql")
+        trailering_table = client.query(
+            query=trailering_query, database=app.config["INFLUX_BUCKET"], language="influxql"
+        )
         trailering_df = trailering_table.to_pandas() if trailering_table.num_rows > 0 else pd.DataFrame()
     else:
         # Sample data for testing
-        trailering_df = pd.DataFrame({
-            "teamnum": [1, 2, 3],
-            "max": [True, False, True]
-        })
+        trailering_df = pd.DataFrame({"teamnum": [1, 2, 3], "max": [True, False, True]})
 
     # Convert to dataframe
     if not trailering_df.empty:
-        trailering_df = (
-            trailering_df
-            .reset_index()
-            .rename(columns={"max": "trailering"})
-            [["teamnum","trailering"]]
-        )
-
+        trailering_df = trailering_df.reset_index().rename(columns={"max": "trailering"})[["teamnum", "trailering"]]
 
     #    query = "select * from telemetry GROUP BY car"
     query = f"""\
@@ -102,21 +95,25 @@ GROUP BY teamnum"""  # pylint: disable=duplicate-code
     if not sample_data:
         table = client.query(query=query, database=app.config["INFLUX_BUCKET"], language="influxql")
         # Convert to dataframe
-        df = (table.to_pandas()
-            .sort_values(by="time")
-        )
+        df = table.to_pandas().sort_values(by="time")
     else:
         # Sample data for testing
-        df = pd.DataFrame({
-            "team": ["01", "02", "03",],
-            "class": ["Challenger", "Cruiser", "Explorer"],
-            "teamnum": [1, 2, 3],
-            "latitude": [-25.0, -26.0, -27.0],
-            "longitude": [130.0, 131.0, 132.0],
-            "altitude": [100, 200, 300],
-            "solarEnergy": [500, 600, 700],
-            "time": pd.date_range(start="2025-08-13", periods=3, freq="H")
-        }).sort_values(by="time")
+        df = pd.DataFrame(
+            {
+                "team": [
+                    "01",
+                    "02",
+                    "03",
+                ],
+                "class": ["Challenger", "Cruiser", "Explorer"],
+                "teamnum": [1, 2, 3],
+                "latitude": [-25.0, -26.0, -27.0],
+                "longitude": [130.0, 131.0, 132.0],
+                "altitude": [100, 200, 300],
+                "solarEnergy": [500, 600, 700],
+                "time": pd.date_range(start="2025-08-13", periods=3, freq="H"),
+            }
+        ).sort_values(by="time")
 
     df["trailering"] = False
 
@@ -124,13 +121,11 @@ GROUP BY teamnum"""  # pylint: disable=duplicate-code
     logger.critical("Trailering: \n%s", trailering_df)
 
     if not trailering_df.empty:
-        df = (df
-            .drop(columns=["trailering"])
-            .merge(trailering_df, on="teamnum", how="left", suffixes=("_original",None))
+        df = df.drop(columns=["trailering"]).merge(
+            trailering_df, on="teamnum", how="left", suffixes=("_original", None)
         )
 
     logger.critical("Merged: \n%s", df)
-
 
     print(df)
 
@@ -164,6 +159,7 @@ GROUP BY teamnum"""  # pylint: disable=duplicate-code
         },
         ignore_nan=True,
     )
+
 
 @app.route("/api/positions/sample")
 def api_positions_sample():
