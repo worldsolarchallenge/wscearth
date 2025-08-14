@@ -214,6 +214,7 @@ window.wsc = (function() {
       glyphImg.src = new URL(icon.url).href;
       const glyphSvgPinElement = new google.maps.marker.PinElement({
         glyph: glyphImg,
+        scale: 0.5
       });
 
       // It's a new marker.
