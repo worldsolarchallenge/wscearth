@@ -40,7 +40,7 @@ localtest: build/testenv
 			INFLUX_MEASUREMENT=telemetry4 \
 			INFLUX_TOKEN=$$(cat wsc_bucket_token.key) \
 			GOOGLEMAPS_KEY=$$(cat googlemaps.key) \
-		flask --debug --app wscearth run
+		flask --debug --app wscearth run --port $(LOCAL_PORT)
 lint: build/testenv
 		source $</bin/activate && \
 				pip install pylint && \
