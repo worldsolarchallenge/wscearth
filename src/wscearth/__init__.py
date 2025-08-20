@@ -12,10 +12,21 @@ import flask_googlemaps
 config = {
     "DEBUG": True,  # some Flask specific configs
     "CACHE_TYPE": "FileSystemCache",  # Flask-Caching related configs
-    "CACHE_DIR": os.environ.get("CACHE_DIR", "/tmp/wscearth_cache"),  # Directory for cache files
+    "CACHE_DIR": os.environ.get("CACHE_DIR", "/tmp/wscearth_cache"),  # Directory for fs cache files
     "CACHE_DEFAULT_TIMEOUT": 300,
 }
+
+memcached_servers = os.environ.get("CACHE_MEMCACHED_SERVERS")
+if memcached_servers:
+    memcached_servers = memcached_servers.split(",")
+    logging.info("Using Memcached cache servers: %s", memcached_servers)
+    config["CACHE_TYPE"] = "MemcachedCache"
+    config["CACHE_KEY_PREFIX"] = "wscearth_" # Prefix for cache keys
+    config["CACHE_MEMCACHED_SERVERS"] = memcached_servers
+
 app = Flask(__name__)
+
+logging.info("Using cache type: %s", config["CACHE_TYPE"])
 
 app.config.from_mapping(config)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
