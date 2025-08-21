@@ -21,7 +21,7 @@ if memcached_servers:
     memcached_servers = memcached_servers.split(",")
     logging.info("Using Memcached cache servers: %s", memcached_servers)
     config["CACHE_TYPE"] = "MemcachedCache"
-    config["CACHE_KEY_PREFIX"] = "wscearth_" # Prefix for cache keys
+    config["CACHE_KEY_PREFIX"] = os.environ.get("CACHE_KEY_PREFIX", "wscearth_")  # Prefix for cache keys
     config["CACHE_MEMCACHED_SERVERS"] = memcached_servers
 
 app = Flask(__name__)
