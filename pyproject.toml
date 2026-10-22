@@ -16,6 +16,7 @@ dependencies = [
     "flask_cors",
     "influxdb3-python",
     "pandas",
+    "pytz",
     "simplejson",
     "simplekml",
     "pylibmc",
